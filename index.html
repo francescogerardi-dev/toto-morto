@@ -41,7 +41,7 @@
         
         <!-- MESSAGGIO CRITICO (visibile solo se Firebase non si inizializza) -->
         <div id="critical-warning" class="hidden bg-red-800 p-3 rounded-lg w-full mb-4 text-sm font-semibold text-center text-white">
-            ATTENZIONE CRITICA: Impossibile connettersi al database Firebase. Il salvataggio dei dati non è attivo.
+            ATTENZIONE CRITICA: Connessione database fallita. Il salvataggio dei dati è disabilitato.
         </div>
 
         <!-- Navigazione a Tab -->
@@ -250,34 +250,25 @@
         // Variabili globali fornite dall'ambiente Canvas
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // Caricamento e gestione fallback della configurazione
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
-  authDomain: "toto-morto.firebaseapp.com",
-  projectId: "toto-morto",
-  storageBucket: "toto-morto.firebasestorage.app",
-  messagingSenderId: "524024219116",
-  appId: "1:524024219116:web:f615fc6750ede425cdecc9",
-  measurementId: "G-EDZ41M49KN"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-        // --- CORREZIONE: Gestione del fallback senza tentare un'inizializzazione fallita ---
-        if (!isFirebaseAvailable) {
-            console.warn("Configurazione Firebase valida non trovata. L'interfaccia utente verrà sbloccata senza accesso al database.");
-            firebaseConfig = { projectId: "no-firebase-project" }; // Configurazione minima fittizia
-        }
+        // --------------------------------------------------------
+        // CONFIGURAZIONE FORNITA DALL'UTENTE
+        // --------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
+            authDomain: "toto-morto.firebaseapp.com",
+            projectId: "toto-morto",
+            storageBucket: "toto-morto.firebasestorage.app",
+            appId: "1:524024219116:web:f615fc6750ede425cdecc9",
+            messagingSenderId: "524024219116",
+            measurementId: "G-EDZ41M49KN"
+        };
+        
+        // Verifica se la configurazione sembra completa
+        let isFirebaseAvailable = (
+            firebaseConfig.apiKey && 
+            firebaseConfig.apiKey.length > 5 && 
+            firebaseConfig.projectId
+        );
         
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
@@ -365,7 +356,26 @@ const analytics = getAnalytics(app);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                onAuthStateChanged(auth, async (user) => {
+                // Tentativo di autenticazione: forziamo l'accesso anonimo con la configurazione dell'utente
+                const attemptAuth = async () => {
+                    try {
+                        // **SOLUZIONE:** Ignoriamo il token personalizzato dell'ambiente
+                        // e tentiamo SOLO l'accesso anonimo al progetto dell'utente.
+                        await signInAnonymously(auth);
+                        
+                    } catch (e) {
+                        console.error("Errore Autenticazione Iniziale (NON RICONOSCIUTO):", e);
+                        userInfo.textContent = `Errore Autenticazione: ${e.message}`;
+                        // Imposta lo stato di fallimento e riavvia la logica di blocco UI
+                        isFirebaseAvailable = false;
+                        isAuthReady = true;
+                        initializeFirebase(); 
+                        return; // Ferma il flusso
+                    }
+                };
+
+                // Listener per gestire il cambio di stato di autenticazione
+                onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
                         userInfo.textContent = `Giocatore: ${userId}`;
@@ -382,31 +392,22 @@ const analytics = getAnalytics(app);
                         setupLeaderboardListener(); 
                         setupAuditLogListener();
                         setupRulesListener(); 
-                    } else {
-                        console.log("Utente non autenticato. Tentativo di accesso...");
-                        try {
-                            if (initialAuthToken) {
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                        } catch (e) {
-                            console.error("Errore nell'autenticazione:", e);
-                            userInfo.textContent = `Errore di Autenticazione: ${e.message}`;
-                            // Se l'autenticazione fallisce (chiave non valida), blocca l'app
-                            isAuthReady = true;
-                            isFirebaseAvailable = false;
-                            initializeFirebase(); // Riprova, che questa volta disabiliterà l'interfaccia
-                        }
                     }
                 });
+
+                // Avvia il tentativo di autenticazione
+                if (!auth.currentUser) {
+                    attemptAuth();
+                }
+
             } catch (error) {
-                console.error("Errore fatale nell'inizializzazione di Firebase:", error);
+                // Questo catch cattura errori nell'initializeApp (es. projectId non trovato)
+                console.error("Errore fatale nell'inizializzazione di Firebase SDK:", error);
                 userInfo.textContent = `Errore di Inizializzazione: ${error.message}`;
                 // Se l'inizializzazione fallisce subito, blocca l'app
-                isAuthReady = true;
                 isFirebaseAvailable = false;
-                initializeFirebase(); // Riprova
+                isAuthReady = true;
+                initializeFirebase(); // Riprova, che attiverà il blocco UI
             }
         }
         
