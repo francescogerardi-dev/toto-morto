@@ -44,10 +44,6 @@
         button:hover:enabled {
             background-color: #2980b9;
         }
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
         .team-list {
             list-style: none;
             padding: 0;
@@ -125,15 +121,6 @@
             <div id="adminControls" class="admin-panel-content" style="display: none;">
                 
                 <div class="admin-control-group">
-                    <h4>Stato Mercato Squadre</h4>
-                    
-                    <input type="checkbox" id="toggleRegistrationsClosed" onchange="toggleTeamRegistrationLock(this.checked)">
-                    <label for="toggleRegistrationsClosed" style="font-weight: bold;">Blocca Inserimento/Modifica Squadre (Chiudi Mercato)</label>
-                    
-                    <p id="registrationStatusMessage" style="margin-top: 10px; font-weight: bold;"></p>
-                </div>
-                
-                <div class="admin-control-group">
                     <h4>Gestione Punteggi</h4>
                     <p>Qui puoi aggiornare i punteggi dei singoli giocatori.</p>
                     <button onclick="alert('Funzione di aggiornamento punteggi da implementare.')">Aggiorna Punteggi</button>
@@ -158,66 +145,6 @@
         const ADMIN_PASSWORD = 'B4n4n4l4mp0n3'; 
         let teams = [];
         let auditLog = [];
-
-        // ======================================================
-        // NUOVE VARIABILI E FUNZIONI PER LA GESTIONE DELLO STATO ISCRIZIONI
-        // ======================================================
-
-        let isRegistrationsClosed = false;
-        const REGISTRATION_CLOSED_KEY = 'totomorto_registrations_closed';
-
-        // Carica lo stato di chiusura all'avvio
-        function loadRegistrationStatus() {
-            const closed = localStorage.getItem(REGISTRATION_CLOSED_KEY);
-            isRegistrationsClosed = (closed === 'true'); 
-            
-            updateRegistrationUI(); 
-            
-            const checkbox = document.getElementById('toggleRegistrationsClosed');
-            if (checkbox) {
-                checkbox.checked = isRegistrationsClosed;
-            }
-        }
-
-        // Funzione chiamata dal pannello Admin per cambiare lo stato
-        function toggleTeamRegistrationLock(isClosed) {
-            isRegistrationsClosed = isClosed;
-            localStorage.setItem(REGISTRATION_CLOSED_KEY, isClosed);
-            updateRegistrationUI();
-
-            const action = isClosed ? 'CHIUSURA MERCATO SQUADRE' : 'RIAPERTURA MERCATO SQUADRE';
-            logAdminAction(action); 
-
-            alert(`Stato Iscrizioni aggiornato: Mercato ${isClosed ? 'CHIUSO' : 'APERTO'}`);
-        }
-
-        // Aggiorna l'interfaccia utente in base allo stato
-        function updateRegistrationUI() {
-            const addButton = document.getElementById('addTeamButton'); 
-            const statusMessage = document.getElementById('registrationStatusMessage');
-
-            if (isRegistrationsClosed) {
-                if (addButton) {
-                    addButton.disabled = true;
-                    addButton.title = "Operazione bloccata. Il Mercato è Chiuso dall'Admin.";
-                    addButton.textContent = "Aggiungi Squadra (Mercato Chiuso)";
-                }
-                if (statusMessage) {
-                    statusMessage.textContent = "MERCATO CHIUSO: INSERIMENTO E MODIFICA SQUADRE NON CONSENTITI.";
-                    statusMessage.style.color = 'red';
-                }
-            } else {
-                if (addButton) {
-                    addButton.disabled = false;
-                    addButton.title = "Aggiungi una nuova squadra al gioco.";
-                    addButton.textContent = "Aggiungi Squadra";
-                }
-                if (statusMessage) {
-                    statusMessage.textContent = "MERCATO APERTO: ISCRIZIONI ATTIVE.";
-                    statusMessage.style.color = 'green';
-                }
-            }
-        }
         
         // ======================================================
         // FUNZIONI DI GESTIONE DATI E UI
@@ -244,7 +171,7 @@
         }
 
         function calculateScore(team) {
-            // Logica Semplificata: 10 punti per ogni giocatore + 10 punti bonus per il Capitano (x2)
+            // Logica: 10 punti per ogni giocatore + 10 punti bonus per il Capitano (x2)
             let score = 0;
             score += team.giocatore1Score || 10; // Capitano base
             score += team.giocatore2Score || 10;
@@ -260,6 +187,7 @@
             const list = document.getElementById('teamsList');
             list.innerHTML = '';
             
+            // Ordina le squadre per punteggio
             const sortedTeams = [...teams].sort((a, b) => calculateScore(b) - calculateScore(a));
 
             if (sortedTeams.length === 0) {
@@ -283,13 +211,6 @@
         }
 
         function saveTeam() {
-            // ******* BLOCCO DI CONTROLLO ISCRIZIONI *******
-            if (isRegistrationsClosed) {
-                alert("Operazione bloccata dall'Admin. Il mercato delle squadre è stato chiuso e non è possibile aggiungere o modificare squadre.");
-                return; // BLOCCA l'esecuzione della funzione
-            }
-            // ******* FINE BLOCCO DI CONTROLLO *******
-
             const teamName = document.getElementById('teamName').value.trim();
             const capitanoName = document.getElementById('capitanoName').value.trim();
             const giocatore2Name = document.getElementById('giocatore2Name').value.trim();
@@ -301,7 +222,7 @@
             }
 
             const newTeam = {
-                id: Date.now(), 
+                id: Date.now(), // ID univoco
                 name: teamName,
                 capitanoName: capitanoName,
                 giocatore2Name: giocatore2Name,
@@ -316,6 +237,7 @@
             renderTeams();
             logUserAction(`Iscrizione squadra: ${teamName}`);
 
+            // Resetta il form
             document.getElementById('teamName').value = '';
             document.getElementById('capitanoName').value = '';
             document.getElementById('giocatore2Name').value = '';
@@ -345,15 +267,12 @@
             if (confirm("ATTENZIONE: Sei sicuro di voler cancellare TUTTI i dati (squadre e log)? Questa azione è irreversibile.")) {
                 localStorage.removeItem(TEAMS_KEY);
                 localStorage.removeItem(LOG_KEY);
-                localStorage.removeItem(REGISTRATION_CLOSED_KEY);
                 
                 teams = [];
                 auditLog = [];
-                isRegistrationsClosed = false;
 
                 renderTeams();
                 renderAuditLog();
-                updateRegistrationUI(); 
 
                 alert("Tutti i dati sono stati cancellati. Il gioco è stato resettato.");
             }
@@ -389,7 +308,6 @@
         // ======================================================
 
         window.onload = function() {
-            loadRegistrationStatus(); 
             loadData(); 
         };
 
