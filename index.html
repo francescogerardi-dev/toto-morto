@@ -245,15 +245,27 @@
         // Variabili globali fornite dall'ambiente Canvas
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // Caricamento e gestione fallback della configurazione
-        const rawConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? __firebase_config : '{}';
-        let firebaseConfig;
-        try {
-            firebaseConfig = JSON.parse(rawConfig);
-        } catch (e) {
-            console.error("Errore nel parsing della configurazione Firebase, utilizzo configurazione mock:", e);
-            firebaseConfig = {};
-        }
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "firebase/app";
+        import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
+            authDomain: "toto-morto.firebaseapp.com",
+            projectId: "toto-morto",
+            storageBucket: "toto-morto.firebasestorage.app",
+            messagingSenderId: "524024219116",
+           appId: "1:524024219116:web:f615fc6750ede425cdecc9",
+           measurementId: "G-EDZ41M49KN"
+        };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
         // --- CORREZIONE: Configurazione di fallback (Mock) se la configurazione è vuota ---
         if (Object.keys(firebaseConfig).length === 0) {
@@ -1010,3 +1022,4 @@
     </script>
 </body>
 </html>
+
