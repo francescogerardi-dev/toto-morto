@@ -729,7 +729,9 @@
                         <p class="text-sm">Giocatore: ${data.playerName}</p>
                         <ul class="list-disc list-inside mt-2 ml-4 text-sm text-gray-300">
                             ${team.map(member => `
-                                <li>${member.name} 
+                                <li>
+                                    ${(member.score || 0) > 0 ? '💀 ' : ''}
+                                    ${member.name} 
                                     ${member.isCaptain ? '<span class="text-yellow-400">(CAPITANO)</span>' : ''}
                                     <span class="text-xs text-blue-300"> - Punti: ${member.score || 0}</span>
                                 </li>
@@ -776,6 +778,13 @@
                     const row = document.createElement('tr');
                     row.className = isCurrentUser ? 'bg-blue-900/50 hover:bg-blue-900' : 'hover:bg-gray-700';
 
+                    // Modifica qui: aggiunta del teschio prima del nome
+                    const teamMembersHtml = data.team.map(m => {
+                        const skull = (m.score || 0) > 0 ? '💀 ' : '';
+                        const captainClass = m.isCaptain ? 'text-yellow-400 font-semibold' : '';
+                        return `<span class="${captainClass}">${skull}${m.name}</span>`;
+                    }).join(', ');
+
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${rank <= 3 ? 'text-yellow-400 font-bold' : 'text-gray-200'}">${rank}°</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
@@ -783,7 +792,7 @@
                             <span class="text-xs text-gray-500 block">${data.userId}</span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-400">
-                            ${data.team.map(m => `<span class="${m.isCaptain ? 'text-yellow-400 font-semibold' : ''}">${m.name}</span>`).join(', ')}
+                            ${teamMembersHtml}
                             ${(data.extraPoints || 0) > 0 ? `<span class="text-pink-300 ml-2">(+${data.extraPoints} Extra)</span>` : ''}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-lg font-bold text-green-400">${data.totalScore || 0}</td>
