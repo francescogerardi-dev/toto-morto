@@ -169,12 +169,10 @@
         // Carica lo stato di chiusura all'avvio
         function loadRegistrationStatus() {
             const closed = localStorage.getItem(REGISTRATION_CLOSED_KEY);
-            // Il valore da localStorage è una stringa, la confrontiamo con 'true'
             isRegistrationsClosed = (closed === 'true'); 
             
-            updateRegistrationUI(); // Aggiorna l'interfaccia utente
+            updateRegistrationUI(); 
             
-            // Se il checkbox esiste (cioè siamo nell'area Admin), aggiorniamolo
             const checkbox = document.getElementById('toggleRegistrationsClosed');
             if (checkbox) {
                 checkbox.checked = isRegistrationsClosed;
@@ -255,7 +253,6 @@
             // Applica il bonus Capitano (il punteggio già aggiunto del capitano è raddoppiato)
             score += team.giocatore1Score || 10;
 
-            // In una versione reale, qui ci sarebbe una logica più complessa per assegnare/aggiornare i punteggi
             return score; 
         }
 
@@ -263,7 +260,6 @@
             const list = document.getElementById('teamsList');
             list.innerHTML = '';
             
-            // Ordina le squadre per punteggio (dal più alto al più basso)
             const sortedTeams = [...teams].sort((a, b) => calculateScore(b) - calculateScore(a));
 
             if (sortedTeams.length === 0) {
@@ -304,14 +300,12 @@
                 return;
             }
 
-            // Aggiunge la squadra con punteggi iniziali a 0 (o un valore di default)
             const newTeam = {
-                id: Date.now(), // ID univoco basato sul timestamp
+                id: Date.now(), 
                 name: teamName,
                 capitanoName: capitanoName,
                 giocatore2Name: giocatore2Name,
                 giocatore3Name: giocatore3Name,
-                // Inizializzazione punteggi a 0 (per la logica di calcolo)
                 giocatore1Score: 0, 
                 giocatore2Score: 0,
                 giocatore3Score: 0
@@ -322,7 +316,6 @@
             renderTeams();
             logUserAction(`Iscrizione squadra: ${teamName}`);
 
-            // Resetta il form
             document.getElementById('teamName').value = '';
             document.getElementById('capitanoName').value = '';
             document.getElementById('giocatore2Name').value = '';
@@ -360,7 +353,7 @@
 
                 renderTeams();
                 renderAuditLog();
-                updateRegistrationUI(); // Aggiorna lo stato del pulsante
+                updateRegistrationUI(); 
 
                 alert("Tutti i dati sono stati cancellati. Il gioco è stato resettato.");
             }
@@ -368,8 +361,7 @@
 
         function logAction(action, type) {
             const timestamp = new Date().toLocaleString();
-            auditLog.unshift({ timestamp, action, type }); // Aggiungi in testa
-            // Mantieni solo gli ultimi 50 log per pulizia
+            auditLog.unshift({ timestamp, action, type }); 
             auditLog = auditLog.slice(0, 50); 
             saveData();
             renderAuditLog();
@@ -397,8 +389,8 @@
         // ======================================================
 
         window.onload = function() {
-            loadRegistrationStatus(); // **Carica il nuovo stato di blocco all'avvio**
-            loadData(); // Carica squadre e log
+            loadRegistrationStatus(); 
+            loadData(); 
         };
 
     </script>
