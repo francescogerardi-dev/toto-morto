@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TOTOMORTO - App di Gioco</title>
-    <!-- Caricamento di Tailwind CSS per lo styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configurazione di un font leggibile -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
@@ -39,12 +37,14 @@
         <h1 class="text-4xl font-bold mb-4 text-red-600">💀 TOTOMORTO 💀</h1>
         <p id="user-info" class="text-sm mb-6 text-gray-400 text-center">Inizializzazione servizi...</p>
         
-        <!-- MESSAGGIO CRITICO (visibile solo se Firebase non si inizializza) -->
         <div id="critical-warning" class="hidden bg-red-800 p-3 rounded-lg w-full mb-4 text-sm font-semibold text-center text-white">
             ATTENZIONE CRITICA: Connessione database fallita. Il salvataggio dei dati è disabilitato.
         </div>
 
-        <!-- Navigazione a Tab -->
+        <div id="registration-lock-display" class="mb-6 p-2 rounded-lg w-full max-w-sm text-center font-bold text-sm bg-green-900/50 text-green-300 border border-green-700">
+            ISCRIZIONI APERTE.
+        </div>
+        
         <div class="flex space-x-4 mb-8 bg-gray-800 p-2 rounded-xl shadow-lg">
             <button id="tab-squadra" onclick="changePage('squadra')"
                     class="tab-button active px-4 py-2 text-sm font-medium rounded-lg transition duration-150">
@@ -60,7 +60,6 @@
             </button>
         </div>
 
-        <!-- Sezione 1: Gestione Squadra (Squadra) -->
         <div id="page-squadra" class="page-content w-full max-w-4xl">
             <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
                 <h2 class="text-2xl font-semibold mb-4 text-blue-400">
@@ -68,18 +67,15 @@
                 </h2>
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- Nomi della Squadra -->
                     <div class="col-span-2 md:col-span-1">
                         <label class="block text-sm font-medium mb-2 text-gray-300">Il Tuo Nome Giocatore</label>
                         <input type="text" id="player-name" placeholder="Inserisci il tuo nome (es. Marco Rossi)" class="w-full mb-4">
 
                         <h3 class="text-lg font-medium mb-3 text-gray-300">I 10 Nomi Scelti:</h3>
                         <div id="team-inputs" class="space-y-2">
-                            <!-- Qui verranno iniettati 10 campi di testo -->
-                        </div>
+                            </div>
                     </div>
 
-                    <!-- Scelta Capitano e Salvataggio -->
                     <div class="col-span-2 md:col-span-1 bg-gray-700 p-4 rounded-lg">
                         <h3 class="text-lg font-medium mb-3 text-yellow-400">Scelta del Capitano</h3>
                         <p class="text-sm mb-3 text-gray-400">Il Capitano vale doppio in classifica.</p>
@@ -101,17 +97,13 @@
             </div>
         </div>
 
-        <!-- Sezione 2: Classifica Generale (Classifica) -->
         <div id="page-classifica" class="page-content w-full max-w-4xl hidden">
             <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
                 
-                <!-- Regole del Gioco Display -->
                 <div id="rules-display-container" class="mb-6 p-4 bg-gray-700/50 rounded-lg border border-yellow-500">
                     <h3 class="text-xl font-semibold mb-2 text-yellow-400">Regole del Gioco</h3>
                     <div id="game-rules-text" class="text-sm whitespace-pre-wrap text-gray-300">Caricamento regole...</div>
                 </div>
-                <!-- Fine Regole del Gioco Display -->
-
                 <h2 class="text-2xl font-semibold mb-4 text-green-400">
                     Classifica Generale TOTOMORTO
                 </h2>
@@ -127,12 +119,10 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body" class="bg-gray-800 divide-y divide-gray-700">
-                            <!-- Le righe della classifica verranno iniettate qui -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
 
-                <!-- Log delle Assegnazioni Punti -->
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold mb-3 text-yellow-500 border-b border-gray-700 pb-2">Registro Punteggi Recenti</h3>
                     <ul id="score-audit-log" class="space-y-2 text-sm">
@@ -143,15 +133,13 @@
             </div>
         </div>
 
-        <!-- Sezione 3: Pannello Admin (Admin) -->
         <div id="page-admin" class="page-content w-full max-w-4xl hidden">
             
-            <!-- Gate di Accesso Admin -->
             <div id="admin-login-gate" class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm mx-auto my-12 border border-yellow-500">
                 <h2 class="text-2xl font-bold mb-4 text-yellow-400 text-center">Accesso Amministratore</h2>
                 <p class="text-sm mb-4 text-gray-400 text-center">Inserisci la password di amministrazione per sbloccare le funzionalità.</p>
                 <input type="password" id="admin-password-input" placeholder="Password Admin" 
-                       class="w-full mb-4 p-3 bg-gray-700 border-gray-600 focus:ring-yellow-500 focus:border-yellow-500">
+                        class="w-full mb-4 p-3 bg-gray-700 border-gray-600 focus:ring-yellow-500 focus:border-yellow-500">
                 <button id="admin-login-btn" onclick="checkAdminPassword()"
                         class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition duration-150">
                     Sblocca Pannello
@@ -159,7 +147,6 @@
                 <div id="admin-login-error" class="mt-3 text-red-400 text-center text-sm hidden"></div>
             </div>
 
-            <!-- Contenuto effettivo del Pannello Admin (Inizialmente nascosto) -->
             <div id="admin-content" class="w-full hidden">
                 <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
                     <h2 class="text-2xl font-semibold mb-6 text-yellow-400">
@@ -169,7 +156,6 @@
                         NOTA: Questo pannello è visibile a tutti gli utenti dopo aver inserito la password corretta.
                     </p>
 
-                    <!-- 1. Assegnazione Punti Globali (al Nome) -->
                     <div class="bg-gray-700 p-4 rounded-lg mb-6">
                         <h3 class="text-xl font-medium mb-3 text-red-400">1. Assegna Punti ad un Nome Scelto</h3>
                         <p class="text-sm mb-3 text-gray-400">Assegna un punteggio ad un nome, aggiornando tutte le squadre che lo contengono (Capitano x2).</p>
@@ -187,7 +173,6 @@
                         <div id="unique-names-status" class="mt-2 text-sm text-gray-400"></div>
                     </div>
 
-                    <!-- 2. Assegnazione Punti Extra (alla Squadra) -->
                     <div class="bg-gray-700 p-4 rounded-lg mb-6">
                         <h3 class="text-xl font-medium mb-3 text-red-400">2. Assegna Punti Extra alla Squadra</h3>
                         <p class="text-sm mb-3 text-gray-400">Assegna un bonus di punteggio ad una specifica squadra (cercata per ID Giocatore).</p>
@@ -202,7 +187,6 @@
                         </div>
                     </div>
                     
-                    <!-- 3. Cancellazione Squadra -->
                     <div class="bg-gray-700 p-4 rounded-lg mb-6">
                         <h3 class="text-xl font-medium mb-3 text-red-400">3. Cancellazione Squadra</h3>
                         <p class="text-sm mb-3 text-gray-400">Rimuove una squadra dal database, cancellandola completamente dalla classifica.</p>
@@ -216,8 +200,7 @@
                         </div>
                     </div>
 
-                    <!-- 4. Gestione Regole del Gioco -->
-                    <div class="bg-gray-700 p-4 rounded-lg">
+                    <div class="bg-gray-700 p-4 rounded-lg mb-6">
                         <h3 class="text-xl font-medium mb-3 text-red-400">4. Gestione Regole del Gioco</h3>
                         <p class="text-sm mb-3 text-gray-400">Inserisci qui le regole del gioco TOTOMORTO. Saranno visibili in testa alla classifica.</p>
                         
@@ -230,15 +213,26 @@
                         </button>
                     </div>
 
+                    <div class="bg-gray-600 p-4 rounded-lg border border-yellow-500">
+                        <h3 class="text-xl font-medium mb-3 text-yellow-300">5. Blocco Iscrizioni Squadre (Mercato)</h3>
+                        <p class="text-sm mb-3 text-gray-200">Una volta chiuso, nessun utente potrà più salvare o modificare la propria squadra.</p>
+                        
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="toggle-registration-lock" onchange="toggleTeamRegistrationLock(this.checked)" 
+                                class="w-5 h-5 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500">
+                            <label for="toggle-registration-lock" class="text-lg font-semibold text-white">
+                                Chiudi Mercato Squadre (Blocca Salvataggio)
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
-            </div> <!-- Fine admin-content -->
-        </div>
+            </div> </div>
 
         <div id="alert-message" class="fixed bottom-4 right-4 p-3 rounded-lg shadow-xl text-white hidden transition-opacity duration-300"></div>
 
     </div>
 
-    <!-- Moduli di Firebase (Importati tramite CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -286,9 +280,16 @@
         const RULES_COLLECTION_PATH = `/artifacts/${appId}/public/data/game_rules`;
         const RULES_DOC_ID = 'current_rules'; // ID del documento delle regole
 
+        // --- NUOVI PATH PER IL BLOCCO ISCRIZIONI ---
+        const REGISTRATION_COLLECTION_PATH = `/artifacts/${appId}/public/data/registration_lock`;
+        const REGISTRATION_LOCK_DOC_ID = 'lock_status'; // ID del documento di stato
+
         // --- PASSWORD AMMINISTRATORE ---
         const ADMIN_PASSWORD = 'B4n4n4l4mp0n3'; // Password fissa per la demo
         let isAdminVerified = false; // Stato di accesso Admin
+        
+        // --- NUOVO STATO BLOCCO ---
+        let isRegistrationsClosed = false;
 
 
         // Riferimenti agli elementi DOM
@@ -304,7 +305,8 @@
         const tabClassificaBtn = document.getElementById('tab-classifica');
         const tabAdminBtn = document.getElementById('tab-admin');
         const criticalWarning = document.getElementById('critical-warning');
-
+        const registrationLockDisplay = document.getElementById('registration-lock-display'); // Nuovo elemento
+        const registrationLockToggle = document.getElementById('toggle-registration-lock'); // Nuovo elemento
 
         // Admin DOM elements
         const adminNameSelect = document.getElementById('admin-name-select');
@@ -339,7 +341,7 @@
         // 1. Inizializzazione e Autenticazione di Firebase
         function initializeFirebase() {
             if (!isFirebaseAvailable) {
-                 // Disabilita tutte le funzionalità e sblocca l'interfaccia utente.
+                // Disabilita tutte le funzionalità e sblocca l'interfaccia utente.
                 criticalWarning.classList.remove('hidden');
                 userInfo.textContent = `AVVISO: Dati disabilitati. (ID Giocatore: ${userId})`;
                 isAuthReady = true; 
@@ -356,21 +358,16 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Tentativo di autenticazione: forziamo l'accesso anonimo con la configurazione dell'utente
                 const attemptAuth = async () => {
                     try {
-                        // **SOLUZIONE:** Ignoriamo il token personalizzato dell'ambiente
-                        // e tentiamo SOLO l'accesso anonimo al progetto dell'utente.
                         await signInAnonymously(auth);
-                        
                     } catch (e) {
                         console.error("Errore Autenticazione Iniziale (NON RICONOSCIUTO):", e);
                         userInfo.textContent = `Errore Autenticazione: ${e.message}`;
-                        // Imposta lo stato di fallimento e riavvia la logica di blocco UI
                         isFirebaseAvailable = false;
                         isAuthReady = true;
                         initializeFirebase(); 
-                        return; // Ferma il flusso
+                        return;
                     }
                 };
 
@@ -392,6 +389,7 @@
                         setupLeaderboardListener(); 
                         setupAuditLogListener();
                         setupRulesListener(); 
+                        setupRegistrationLockListener(); // **LISTENER STATO BLOCCO**
                     }
                 });
 
@@ -401,13 +399,11 @@
                 }
 
             } catch (error) {
-                // Questo catch cattura errori nell'initializeApp (es. projectId non trovato)
                 console.error("Errore fatale nell'inizializzazione di Firebase SDK:", error);
                 userInfo.textContent = `Errore di Inizializzazione: ${error.message}`;
-                // Se l'inizializzazione fallisce subito, blocca l'app
                 isFirebaseAvailable = false;
                 isAuthReady = true;
-                initializeFirebase(); // Riprova, che attiverà il blocco UI
+                initializeFirebase(); 
             }
         }
         
@@ -424,23 +420,23 @@
                 if (isAdminVerified) {
                     adminLoginGate.classList.add('hidden');
                     adminContent.classList.remove('hidden');
-                    // Abilita i pulsanti admin solo se la password è corretta E il DB è disponibile
                     enableAdminButtons(isFirebaseAvailable);
                     if (isFirebaseAvailable) {
                         populateAdminNameSelect();
-                        // Aggiorna la textarea Admin con le regole correnti
                         const currentRules = gameRulesText.textContent;
                         if (currentRules && currentRules !== "Caricamento regole...") {
                             adminRulesTextarea.value = currentRules;
                         }
+                        // Aggiorna il toggle del blocco iscrizioni
+                        if(registrationLockToggle) registrationLockToggle.checked = isRegistrationsClosed;
                     } else {
                         alertUserMessage("Impossibile usare i servizi Admin: Database non disponibile.", 'error');
                     }
                 } else {
                     adminLoginGate.classList.remove('hidden');
                     adminContent.classList.add('hidden');
-                    enableAdminButtons(false); // Disabilita i pulsanti se non verificato
-                    adminPasswordInput.value = ''; // Pulisci l'input
+                    enableAdminButtons(false);
+                    adminPasswordInput.value = '';
                     adminLoginError.classList.add('hidden');
                 }
             }
@@ -464,13 +460,14 @@
                 isAdminVerified = true;
                 alertUserMessage("Accesso Amministratore sbloccato!", 'success');
                 
-                // Mostra il contenuto Admin e nascondi il gate
                 adminLoginGate.classList.add('hidden');
                 adminContent.classList.remove('hidden');
-                // Abilita i pulsanti solo se il DB è OK
+                
                 enableAdminButtons(isFirebaseAvailable); 
                 if (isFirebaseAvailable) {
                     populateAdminNameSelect();
+                    // Assicurati che il toggle sia nello stato corretto all'accesso
+                    if(registrationLockToggle) registrationLockToggle.checked = isRegistrationsClosed; 
                 } else {
                     alertUserMessage("Pannello sbloccato, ma le operazioni di database sono disabilitate.", 'info');
                 }
@@ -484,7 +481,7 @@
             }
         };
 
-        // 3. Setup Campi Input (Omesso per brevità, non modificato)
+        // 3. Setup Campi Input
         function setupTeamInputs() {
             teamInputsDiv.innerHTML = '';
             for (let i = 1; i <= 10; i++) {
@@ -509,6 +506,8 @@
             if(savedPlayerName) {
                 playerNameInput.value = savedPlayerName;
             }
+            // Aggiorna lo stato dei campi/pulsanti in base al blocco
+            updateRegistrationUIState();
         }
         
         function updateCaptainOptions() {
@@ -528,12 +527,100 @@
                 captainSelect.appendChild(option);
             });
 
-            captainSelect.disabled = names.length === 0 || !isFirebaseAvailable;
-            saveTeamBtn.disabled = !isFirebaseAvailable;
+            // Stato del pulsante e select aggiornato (con check del blocco)
+            updateRegistrationUIState();
         }
 
-        // 4. Logica Firestore (Salvamento Squadra - Omesso per brevità, non modificato)
+        // **FUNZIONE: Aggiorna lo stato UI del blocco**
+        function updateRegistrationUIState() {
+            const disableInput = isRegistrationsClosed || !isFirebaseAvailable;
+            
+            // Disabilita l'input del nome giocatore
+            playerNameInput.disabled = disableInput;
+
+            // Disabilita tutti gli input dei 10 nomi
+            for (let i = 1; i <= 10; i++) {
+                const input = document.getElementById(`name-${i}`);
+                if (input) input.disabled = disableInput;
+            }
+
+            // Disabilita la select del Capitano
+            captainSelect.disabled = disableInput;
+
+            // Disabilita il pulsante di salvataggio
+            saveTeamBtn.disabled = disableInput;
+
+            // Aggiorna il messaggio di stato visibile a tutti
+            if (isRegistrationsClosed) {
+                registrationLockDisplay.textContent = "ATTENZIONE: MERCATO SQUADRE CHIUSO. Salvataggio e Modifica disabilitati.";
+                registrationLockDisplay.classList.remove('bg-green-900/50', 'text-green-300', 'border-green-700');
+                registrationLockDisplay.classList.add('bg-red-900/50', 'text-red-300', 'border-red-700');
+            } else {
+                registrationLockDisplay.textContent = "ISCRIZIONI APERTE.";
+                registrationLockDisplay.classList.remove('bg-red-900/50', 'text-red-300', 'border-red-700');
+                registrationLockDisplay.classList.add('bg-green-900/50', 'text-green-300', 'border-green-700');
+            }
+
+            if (!isFirebaseAvailable) {
+                registrationLockDisplay.textContent += " (DB NON DISPONIBILE)";
+            }
+        }
+        
+        // **FUNZIONE: Listener per lo stato di Blocco**
+        function setupRegistrationLockListener() {
+            if (!isAuthReady || !db) return;
+
+            const docRef = doc(db, REGISTRATION_COLLECTION_PATH, REGISTRATION_LOCK_DOC_ID);
+
+            onSnapshot(docRef, (docSnap) => {
+                let status = false;
+                if (docSnap.exists()) {
+                    status = docSnap.data().isClosed || false;
+                }
+
+                if (isRegistrationsClosed !== status) {
+                    isRegistrationsClosed = status;
+                    updateRegistrationUIState();
+                    console.log(`Stato Iscrizioni aggiornato: ${status ? 'CHIUSO' : 'APERTO'}`);
+                }
+            }, (error) => {
+                console.error("Errore nell'ascolto dello stato di blocco:", error);
+                alertUserMessage("Errore nel recupero dello stato di blocco iscrizioni.", 'error');
+            });
+        }
+        
+        // **FUNZIONE: Toggle del Blocco (Chiamata dall'Admin)**
+        window.toggleTeamRegistrationLock = async function(isClosed) {
+            if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
+            if (!isAuthReady || !db) return;
+            
+            enableAdminButtons(false);
+
+            try {
+                const docRef = doc(db, REGISTRATION_COLLECTION_PATH, REGISTRATION_LOCK_DOC_ID);
+                await setDoc(docRef, { isClosed: isClosed, lastAdminId: userId, timestamp: serverTimestamp() }, { merge: false });
+
+                alertUserMessage(`Mercato Squadre ${isClosed ? 'CHIUSO' : 'RIAPERTO'} con successo.`, 'info');
+                isRegistrationsClosed = isClosed; // Aggiornato subito per reattività
+                updateRegistrationUIState();
+            } catch (e) {
+                console.error("Errore nel salvataggio dello stato di blocco:", e);
+                alertUserMessage(`Errore nel salvataggio dello stato di blocco: ${e.message}`, 'error');
+            } finally {
+                enableAdminButtons(true);
+            }
+        }
+
+
+        // 4. Logica Firestore (Salvamento Squadra)
         window.saveTeam = async function() {
+            // *** CONTROLLO BLOCCO ISCRIZIONI ***
+            if (isRegistrationsClosed) {
+                 alertUserMessage("Operazione bloccata. Il mercato delle squadre è stato chiuso dall'Admin.", 'error');
+                 return;
+            }
+            // **********************************
+
             if (!isFirebaseAvailable) {
                 alertUserMessage("Errore CRITICO: Servizi database non disponibili. Impossibile salvare.", 'error');
                 return;
@@ -576,7 +663,6 @@
                 }
                 enteredNames.add(name.toLowerCase());
                 
-                // Punteggio iniziale 0, che verrà aggiornato dall'Admin
                 teamMembers.push({
                     name: name,
                     isCaptain: name === captainName,
@@ -586,28 +672,23 @@
 
             if (!allNamesValid) return;
 
-            // Dati da salvare
             const teamData = {
                 userId: userId,
                 playerName: playerName,
                 team: teamMembers,
                 totalScore: 0, 
                 extraPoints: 0, 
-                // Usiamo serverTimestamp() per il salvataggio in Firestore.
-                // Lo converto in stringa per la visualizzazione locale/aggiornamento
                 lastUpdate: new Date().toISOString()
             };
 
             try {
                 saveTeamBtn.disabled = true;
-                // docRef avrà 6 segmenti (C/D/C/D/C/D)
                 const docRef = doc(db, TEAMS_COLLECTION_PATH, userId);
                 await setDoc(docRef, teamData, { merge: false });
 
                 alertUserMessage("Squadra TOTOMORTO salvata con successo! Vai alla classifica per vedere il risultato.", 'success');
             } catch (e) {
                 console.error("Errore CRITICO nel salvataggio della squadra:", e);
-                // Invia l'errore completo nell'avviso
                 const fullErrorMessage = e.message || 'Errore sconosciuto';
                 alertUserMessage(`Salvataggio fallito. Controlla la console per l'errore completo. Dettaglio: ${fullErrorMessage.substring(0, 150)}`, 'error');
             } finally {
@@ -616,7 +697,7 @@
         };
 
 
-        // 5. Logica Firestore (Listener Squadra Corrente - Omesso per brevità, non modificato)
+        // 5. Logica Firestore (Listener Squadra Corrente)
         function setupTeamListener() {
             if (!isAuthReady || !db) return;
 
@@ -666,11 +747,11 @@
             });
         }
 
-        // 6. Logica Firestore (Listener Classifica Generale - Omesso per brevità, non modificato)
+        // 6. Logica Firestore (Listener Classifica Generale)
         function setupLeaderboardListener() {
             if (!isAuthReady || !db) return;
 
-            const collectionRef = collection(db, TEAMS_COLLECTION_PATH); // TEAMS_COLLECTION_PATH ha 5 segmenti (dispari)
+            const collectionRef = collection(db, TEAMS_COLLECTION_PATH); 
             const q = query(collectionRef); 
 
             onSnapshot(q, (querySnapshot) => {
@@ -712,7 +793,7 @@
 
                 // Aggiorna il dropdown Admin dopo aver letto tutte le squadre
                 if (currentPage === 'admin' && isAdminVerified) {
-                     populateAdminNameSelect();
+                    populateAdminNameSelect();
                 }
 
             }, (error) => {
@@ -722,7 +803,7 @@
             });
         }
 
-        // 7. Logica Firestore (Listener Registro Punteggi - Omesso per brevità, non modificato)
+        // 7. Logica Firestore (Listener Registro Punteggi)
         function setupAuditLogListener() {
             if (!isAuthReady || !db) return;
 
@@ -749,10 +830,10 @@
                             message = `Assegnati ${log.points} punti a ${log.target}. Classifiche ricalcolate.`;
                             color = 'text-red-300';
                         } else if (log.type === 'EXTRA') {
-                            message = `Assegnati +${log.points} punti extra alla squadra di ID: ${log.target}`; // Non troncato nel log
+                            message = `Assegnati +${log.points} punti extra alla squadra di ID: ${log.target}`; 
                             color = 'text-pink-300';
-                        } else if (log.type === 'DELETE_TEAM') { // NUOVO LOG
-                            message = `Squadra dell'utente ID: ${log.target} è stata CANCELLATA.`; // Non troncato nel log
+                        } else if (log.type === 'DELETE_TEAM') { 
+                            message = `Squadra dell'utente ID: ${log.target} è stata CANCELLATA.`; 
                             color = 'text-red-500';
                         }
                         
@@ -763,9 +844,9 @@
             });
         }
 
-        // 8. Logica Admin: Aggregazione Nomi (Omesso per brevità, non modificato)
+        // 8. Logica Admin: Aggregazione Nomi
         function populateAdminNameSelect() {
-            if (!isAdminVerified) return; // Non eseguire se non loggato come Admin
+            if (!isAdminVerified) return; 
 
             const uniqueNames = new Set();
             allTeamsSnapshot.forEach(teamData => {
@@ -788,7 +869,7 @@
             adminNameSelect.disabled = uniqueNames.size === 0 || !isAdminVerified;
         }
 
-        // 9. Logica Admin: Assegnazione Punti ad un Nome (Globale - Omesso per brevità, non modificato)
+        // 9. Logica Admin: Assegnazione Punti ad un Nome (Globale)
         window.assignNamePoints = async function() {
             if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
             if (!isAuthReady || !db) return;
@@ -869,7 +950,7 @@
             }
         };
 
-        // 10. Logica Admin: Assegnazione Punti Extra alla Squadra (Omesso per brevità, non modificato)
+        // 10. Logica Admin: Assegnazione Punti Extra alla Squadra
         window.assignExtraTeamPoints = async function() {
             if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
             if (!isAuthReady || !db) return;
@@ -925,7 +1006,7 @@
             }
         };
 
-        // 11. NUOVA Logica Admin: Cancellazione Squadra (Omesso per brevità, non modificato)
+        // 11. NUOVA Logica Admin: Cancellazione Squadra
         window.deleteTeam = async function() {
             if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
             if (!isAuthReady || !db) return;
@@ -970,11 +1051,10 @@
         };
 
 
-        // 12. Logica Firestore: Listener Regole del Gioco (Omesso per brevità, non modificato)
+        // 12. Logica Firestore: Listener Regole del Gioco
         function setupRulesListener() {
             if (!isAuthReady || !db) return;
 
-            // doc(db, RULES_COLLECTION_PATH, RULES_DOC_ID) ha 6 segmenti (pari)
             const docRef = doc(db, RULES_COLLECTION_PATH, RULES_DOC_ID);
 
             onSnapshot(docRef, (docSnap) => {
@@ -995,7 +1075,7 @@
             });
         }
 
-        // 13. Logica Admin: Salvataggio Regole (Omesso per brevità, non modificato)
+        // 13. Logica Admin: Salvataggio Regole
         window.saveRules = async function() {
             if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
             if (!isAuthReady || !db) return;
