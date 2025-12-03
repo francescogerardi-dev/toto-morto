@@ -38,6 +38,11 @@
     <div class="container flex flex-col items-center">
         <h1 class="text-4xl font-bold mb-4 text-red-600">💀 TOTOMORTO 💀</h1>
         <p id="user-info" class="text-sm mb-6 text-gray-400 text-center">Inizializzazione servizi...</p>
+        
+        <!-- MESSAGGIO CRITICO (visibile solo se Firebase non si inizializza) -->
+        <div id="critical-warning" class="hidden bg-red-800 p-3 rounded-lg w-full mb-4 text-sm font-semibold text-center text-white">
+            ATTENZIONE CRITICA: Impossibile connettersi al database Firebase. Il salvataggio dei dati non è attivo.
+        </div>
 
         <!-- Navigazione a Tab -->
         <div class="flex space-x-4 mb-8 bg-gray-800 p-2 rounded-xl shadow-lg">
@@ -245,49 +250,43 @@
         // Variabili globali fornite dall'ambiente Canvas
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
+        // Caricamento e gestione fallback della configurazione
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "firebase/app";
-        import { getAnalytics } from "firebase/analytics";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
-            authDomain: "toto-morto.firebaseapp.com",
-            projectId: "toto-morto",
-            storageBucket: "toto-morto.firebasestorage.app",
-            messagingSenderId: "524024219116",
-           appId: "1:524024219116:web:f615fc6750ede425cdecc9",
-           measurementId: "G-EDZ41M49KN"
-        };
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
+  authDomain: "toto-morto.firebaseapp.com",
+  projectId: "toto-morto",
+  storageBucket: "toto-morto.firebasestorage.app",
+  messagingSenderId: "524024219116",
+  appId: "1:524024219116:web:f615fc6750ede425cdecc9",
+  measurementId: "G-EDZ41M49KN"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-        // --- CORREZIONE: Configurazione di fallback (Mock) se la configurazione è vuota ---
-        if (Object.keys(firebaseConfig).length === 0) {
-            console.warn("Configurazione Firebase non trovata. Utilizzo configurazione mock per procedere.");
-            firebaseConfig = {
-                apiKey: "MOCK_KEY",
-                authDomain: "mock-project.firebaseapp.com",
-                projectId: "mock-project",
-                appId: "1:123:web:mock"
-            };
+        // --- CORREZIONE: Gestione del fallback senza tentare un'inizializzazione fallita ---
+        if (!isFirebaseAvailable) {
+            console.warn("Configurazione Firebase valida non trovata. L'interfaccia utente verrà sbloccata senza accesso al database.");
+            firebaseConfig = { projectId: "no-firebase-project" }; // Configurazione minima fittizia
         }
         
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         // Riferimenti ai servizi globali
-        let app;
-        let db;
-        let auth;
+        let app = null;
+        let db = null;
+        let auth = null;
         let userId = 'anonimo';
         let isAuthReady = false;
-        
-        // CORREZIONE CRITICA: I percorsi delle collezioni devono avere un numero DISPARI di segmenti (es. C/D/C/D/C).
         
         // Path della collezione pubblica (5 segments: C/D/C/D/C)
         const TEAMS_COLLECTION_PATH = `/artifacts/${appId}/public/data/totomorto_teams`; 
@@ -313,6 +312,8 @@ const analytics = getAnalytics(app);
         const alertMessageDiv = document.getElementById('alert-message');
         const tabClassificaBtn = document.getElementById('tab-classifica');
         const tabAdminBtn = document.getElementById('tab-admin');
+        const criticalWarning = document.getElementById('critical-warning');
+
 
         // Admin DOM elements
         const adminNameSelect = document.getElementById('admin-name-select');
@@ -346,9 +347,20 @@ const analytics = getAnalytics(app);
 
         // 1. Inizializzazione e Autenticazione di Firebase
         function initializeFirebase() {
+            if (!isFirebaseAvailable) {
+                 // Disabilita tutte le funzionalità e sblocca l'interfaccia utente.
+                criticalWarning.classList.remove('hidden');
+                userInfo.textContent = `AVVISO: Dati disabilitati. (ID Giocatore: ${userId})`;
+                isAuthReady = true; 
+                setupTeamInputs(); // Inizializza i campi input anche senza DB
+                // Disabilita i pulsanti che richiedono il DB
+                saveTeamBtn.disabled = true;
+                tabClassificaBtn.disabled = true;
+                tabAdminBtn.disabled = true;
+                return;
+            }
+            
             try {
-                // IL CONTROLLO PRECEDENTE È STATO RIMOSSO GRAZIE AL FALLBACK AGGIUNTO SOPRA
-                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -381,12 +393,20 @@ const analytics = getAnalytics(app);
                         } catch (e) {
                             console.error("Errore nell'autenticazione:", e);
                             userInfo.textContent = `Errore di Autenticazione: ${e.message}`;
+                            // Se l'autenticazione fallisce (chiave non valida), blocca l'app
+                            isAuthReady = true;
+                            isFirebaseAvailable = false;
+                            initializeFirebase(); // Riprova, che questa volta disabiliterà l'interfaccia
                         }
                     }
                 });
             } catch (error) {
                 console.error("Errore fatale nell'inizializzazione di Firebase:", error);
                 userInfo.textContent = `Errore di Inizializzazione: ${error.message}`;
+                // Se l'inizializzazione fallisce subito, blocca l'app
+                isAuthReady = true;
+                isFirebaseAvailable = false;
+                initializeFirebase(); // Riprova
             }
         }
         
@@ -403,13 +423,17 @@ const analytics = getAnalytics(app);
                 if (isAdminVerified) {
                     adminLoginGate.classList.add('hidden');
                     adminContent.classList.remove('hidden');
-                    // Abilita i pulsanti admin solo se la password è corretta
-                    enableAdminButtons(true);
-                    populateAdminNameSelect();
-                    // Aggiorna la textarea Admin con le regole correnti
-                    const currentRules = gameRulesText.textContent;
-                    if (currentRules && currentRules !== "Caricamento regole...") {
-                        adminRulesTextarea.value = currentRules;
+                    // Abilita i pulsanti admin solo se la password è corretta E il DB è disponibile
+                    enableAdminButtons(isFirebaseAvailable);
+                    if (isFirebaseAvailable) {
+                        populateAdminNameSelect();
+                        // Aggiorna la textarea Admin con le regole correnti
+                        const currentRules = gameRulesText.textContent;
+                        if (currentRules && currentRules !== "Caricamento regole...") {
+                            adminRulesTextarea.value = currentRules;
+                        }
+                    } else {
+                        alertUserMessage("Impossibile usare i servizi Admin: Database non disponibile.", 'error');
                     }
                 } else {
                     adminLoginGate.classList.remove('hidden');
@@ -442,8 +466,13 @@ const analytics = getAnalytics(app);
                 // Mostra il contenuto Admin e nascondi il gate
                 adminLoginGate.classList.add('hidden');
                 adminContent.classList.remove('hidden');
-                enableAdminButtons(true);
-                populateAdminNameSelect();
+                // Abilita i pulsanti solo se il DB è OK
+                enableAdminButtons(isFirebaseAvailable); 
+                if (isFirebaseAvailable) {
+                    populateAdminNameSelect();
+                } else {
+                    alertUserMessage("Pannello sbloccato, ma le operazioni di database sono disabilitate.", 'info');
+                }
                 
             } else {
                 isAdminVerified = false;
@@ -498,13 +527,17 @@ const analytics = getAnalytics(app);
                 captainSelect.appendChild(option);
             });
 
-            captainSelect.disabled = names.length === 0;
+            captainSelect.disabled = names.length === 0 || !isFirebaseAvailable;
+            saveTeamBtn.disabled = !isFirebaseAvailable;
         }
 
         // 4. Logica Firestore (Salvamento Squadra - Omesso per brevità, non modificato)
         window.saveTeam = async function() {
+            if (!isFirebaseAvailable) {
+                alertUserMessage("Errore CRITICO: Servizi database non disponibili. Impossibile salvare.", 'error');
+                return;
+            }
             if (!isAuthReady || !db) {
-                console.error("DEBUG: Firebase services not ready. isAuthReady:", isAuthReady, "db:", !!db);
                 alertUserMessage("Errore: Servizi Firebase non pronti o non autenticati.", 'error');
                 return;
             }
@@ -910,7 +943,7 @@ const analytics = getAnalytics(app);
                 // Check if the team exists before attempting deletion
                 const docSnap = await getDoc(teamRef);
                 if (!docSnap.exists()) {
-                    alertUserMessage(`Errore: Squadra con ID "${targetUserId.substring(0, 8)}..." non trovata.`, 'error');
+                    alertUserMessage(`Squadra con ID "${targetUserId.substring(0, 8)}..." non trovata.`, 'error');
                     return;
                 }
 
@@ -1022,4 +1055,3 @@ const analytics = getAnalytics(app);
     </script>
 </body>
 </html>
-
