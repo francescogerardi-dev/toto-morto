@@ -3,1056 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOTOMORTO - App di Gioco</title>
-    <!-- Caricamento di Tailwind CSS per lo styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configurazione di un font leggibile -->
+    <title>TOTOMORTO - Il Gioco</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Sfondo scuro per tema gioco */
-            color: #e6edf3;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
         }
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .tab-button.active {
-            background-color: #2563eb; /* Colore blu per tab attivo */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"], input[type="number"], input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
             color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
-        input[type="text"], input[type="number"], select, textarea, input[type="password"] {
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            background-color: #1f2937; /* Colore scuro per gli input */
-            border: 1px solid #374151;
-            color: #e6edf3;
+        button:hover:enabled {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .team-list {
+            list-style: none;
+            padding: 0;
+        }
+        .team-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .team-item:last-child {
+            border-bottom: none;
+        }
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .admin-panel {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #f39c12;
+            background-color: #fffaf0;
+            border-radius: 6px;
+        }
+        .admin-panel-content {
+            border-top: 1px solid #f39c12;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .admin-control-group {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container flex flex-col items-center">
-        <h1 class="text-4xl font-bold mb-4 text-red-600">💀 TOTOMORTO 💀</h1>
-        <p id="user-info" class="text-sm mb-6 text-gray-400 text-center">Inizializzazione servizi...</p>
-        
-        <!-- MESSAGGIO CRITICO (visibile solo se Firebase non si inizializza) -->
-        <div id="critical-warning" class="hidden bg-red-800 p-3 rounded-lg w-full mb-4 text-sm font-semibold text-center text-white">
-            ATTENZIONE CRITICA: Connessione database fallita. Il salvataggio dei dati è disabilitato.
+    <div class="container">
+        <h1>TOTOMORTO 2024</h1>
+        <p>Inserisci i dati della tua squadra e segui la classifica in tempo reale.</p>
+
+        <h2>Iscrivi la tua Squadra</h2>
+        <div id="registrationForm">
+            <div class="form-group">
+                <input type="text" id="teamName" placeholder="Nome della Squadra" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="capitanoName" placeholder="Nome del Capitano (Punteggio x2)" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="giocatore2Name" placeholder="Nome Giocatore 2" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="giocatore3Name" placeholder="Nome Giocatore 3" required>
+            </div>
+            <button id="addTeamButton" onclick="saveTeam()">Aggiungi Squadra</button>
         </div>
 
-        <!-- Navigazione a Tab -->
-        <div class="flex space-x-4 mb-8 bg-gray-800 p-2 rounded-xl shadow-lg">
-            <button id="tab-squadra" onclick="changePage('squadra')"
-                    class="tab-button active px-4 py-2 text-sm font-medium rounded-lg transition duration-150">
-                Gestione Squadra
-            </button>
-            <button id="tab-classifica" onclick="changePage('classifica')" disabled
-                    class="tab-button px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-400 transition duration-150 disabled:cursor-not-allowed">
-                Classifica Generale
-            </button>
-            <button id="tab-admin" onclick="changePage('admin')" disabled
-                    class="tab-button px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-yellow-400 transition duration-150 disabled:cursor-not-allowed">
-                Pannello Admin
-            </button>
-        </div>
+        <h2 style="margin-top: 30px;">Classifica</h2>
+        <ul id="teamsList" class="team-list">
+            <li>Nessuna squadra iscritta.</li>
+        </ul>
 
-        <!-- Sezione 1: Gestione Squadra (Squadra) -->
-        <div id="page-squadra" class="page-content w-full max-w-4xl">
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
-                <h2 class="text-2xl font-semibold mb-4 text-blue-400">
-                    Configura la Tua Squadra (10 Nomi + Capitano)
-                </h2>
+        <div class="admin-panel">
+            <h3>Pannello di Amministrazione</h3>
+            <div class="form-group">
+                <input type="password" id="adminPassword" placeholder="Inserisci la password Admin">
+                <button onclick="checkAdminPassword()">Accedi</button>
+            </div>
+
+            <div id="adminControls" class="admin-panel-content" style="display: none;">
                 
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Nomi della Squadra -->
-                    <div class="col-span-2 md:col-span-1">
-                        <label class="block text-sm font-medium mb-2 text-gray-300">Il Tuo Nome Giocatore</label>
-                        <input type="text" id="player-name" placeholder="Inserisci il tuo nome (es. Marco Rossi)" class="w-full mb-4">
-
-                        <h3 class="text-lg font-medium mb-3 text-gray-300">I 10 Nomi Scelti:</h3>
-                        <div id="team-inputs" class="space-y-2">
-                            <!-- Qui verranno iniettati 10 campi di testo -->
-                        </div>
-                    </div>
-
-                    <!-- Scelta Capitano e Salvataggio -->
-                    <div class="col-span-2 md:col-span-1 bg-gray-700 p-4 rounded-lg">
-                        <h3 class="text-lg font-medium mb-3 text-yellow-400">Scelta del Capitano</h3>
-                        <p class="text-sm mb-3 text-gray-400">Il Capitano vale doppio in classifica.</p>
-                        <select id="captain-select" disabled
-                                class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-yellow-500 focus:border-yellow-500">
-                            <option value="">Seleziona il Capitano</option>
-                        </select>
-                        
-                        <button id="save-team-btn" onclick="saveTeam()" disabled
-                                class="mt-6 w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
-                            Salva la Mia Squadra
-                        </button>
-                        
-                        <div id="current-team-display" class="mt-6 p-3 bg-gray-800 rounded-lg text-sm">
-                            La tua squadra salvata apparirà qui.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sezione 2: Classifica Generale (Classifica) -->
-        <div id="page-classifica" class="page-content w-full max-w-4xl hidden">
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
-                
-                <!-- Regole del Gioco Display -->
-                <div id="rules-display-container" class="mb-6 p-4 bg-gray-700/50 rounded-lg border border-yellow-500">
-                    <h3 class="text-xl font-semibold mb-2 text-yellow-400">Regole del Gioco</h3>
-                    <div id="game-rules-text" class="text-sm whitespace-pre-wrap text-gray-300">Caricamento regole...</div>
-                </div>
-                <!-- Fine Regole del Gioco Display -->
-
-                <h2 class="text-2xl font-semibold mb-4 text-green-400">
-                    Classifica Generale TOTOMORTO
-                </h2>
-                <div id="leaderboard-status" class="text-center text-gray-400 mb-4">Caricamento delle squadre...</div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-700">
-                        <thead class="bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Pos.</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Giocatore (ID)</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Squadra</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Punteggio Totale</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-body" class="bg-gray-800 divide-y divide-gray-700">
-                            <!-- Le righe della classifica verranno iniettate qui -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Log delle Assegnazioni Punti -->
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold mb-3 text-yellow-500 border-b border-gray-700 pb-2">Registro Punteggi Recenti</h3>
-                    <ul id="score-audit-log" class="space-y-2 text-sm">
-                        <li class="text-gray-400">Nessuna attività recente...</li>
-                    </ul>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Sezione 3: Pannello Admin (Admin) -->
-        <div id="page-admin" class="page-content w-full max-w-4xl hidden">
-            
-            <!-- Gate di Accesso Admin -->
-            <div id="admin-login-gate" class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm mx-auto my-12 border border-yellow-500">
-                <h2 class="text-2xl font-bold mb-4 text-yellow-400 text-center">Accesso Amministratore</h2>
-                <p class="text-sm mb-4 text-gray-400 text-center">Inserisci la password di amministrazione per sbloccare le funzionalità.</p>
-                <input type="password" id="admin-password-input" placeholder="Password Admin" 
-                       class="w-full mb-4 p-3 bg-gray-700 border-gray-600 focus:ring-yellow-500 focus:border-yellow-500">
-                <button id="admin-login-btn" onclick="checkAdminPassword()"
-                        class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition duration-150">
-                    Sblocca Pannello
-                </button>
-                <div id="admin-login-error" class="mt-3 text-red-400 text-center text-sm hidden"></div>
-            </div>
-
-            <!-- Contenuto effettivo del Pannello Admin (Inizialmente nascosto) -->
-            <div id="admin-content" class="w-full hidden">
-                <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-full mb-8 border border-gray-700">
-                    <h2 class="text-2xl font-semibold mb-6 text-yellow-400">
-                        Pannello di Amministrazione Punteggi
-                    </h2>
-                    <p class="text-sm mb-4 text-gray-400">
-                        NOTA: Questo pannello è visibile a tutti gli utenti dopo aver inserito la password corretta.
-                    </p>
-
-                    <!-- 1. Assegnazione Punti Globali (al Nome) -->
-                    <div class="bg-gray-700 p-4 rounded-lg mb-6">
-                        <h3 class="text-xl font-medium mb-3 text-red-400">1. Assegna Punti ad un Nome Scelto</h3>
-                        <p class="text-sm mb-3 text-gray-400">Assegna un punteggio ad un nome, aggiornando tutte le squadre che lo contengono (Capitano x2).</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <select id="admin-name-select" class="md:col-span-1 w-full" disabled>
-                                <option value="">Caricamento nomi...</option>
-                            </select>
-                            <input type="number" id="admin-name-score" placeholder="Punti da assegnare (es. 10)" class="md:col-span-1 w-full">
-                            <button id="admin-assign-name-btn" onclick="assignNamePoints()" disabled
-                                    class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-150">
-                                Assegna Punti
-                            </button>
-                        </div>
-                        <div id="unique-names-status" class="mt-2 text-sm text-gray-400"></div>
-                    </div>
-
-                    <!-- 2. Assegnazione Punti Extra (alla Squadra) -->
-                    <div class="bg-gray-700 p-4 rounded-lg mb-6">
-                        <h3 class="text-xl font-medium mb-3 text-red-400">2. Assegna Punti Extra alla Squadra</h3>
-                        <p class="text-sm mb-3 text-gray-400">Assegna un bonus di punteggio ad una specifica squadra (cercata per ID Giocatore).</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="text" id="admin-user-id" placeholder="ID Giocatore Target (es. 83e0a11d...)" class="md:col-span-1 w-full">
-                            <input type="number" id="admin-extra-points" placeholder="Punti Extra (es. 50)" class="md:col-span-1 w-full">
-                            <button id="admin-assign-extra-btn" onclick="assignExtraTeamPoints()" disabled
-                                    class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-150">
-                                Assegna Punti Extra
-                            </button>
-                        </div>
-                    </div>
+                <div class="admin-control-group">
+                    <h4>Stato Mercato Squadre</h4>
                     
-                    <!-- 3. Cancellazione Squadra -->
-                    <div class="bg-gray-700 p-4 rounded-lg mb-6">
-                        <h3 class="text-xl font-medium mb-3 text-red-400">3. Cancellazione Squadra</h3>
-                        <p class="text-sm mb-3 text-gray-400">Rimuove una squadra dal database, cancellandola completamente dalla classifica.</p>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input type="text" id="admin-delete-user-id" placeholder="ID Giocatore Target da cancellare" class="md:col-span-2 w-full">
-                            <button id="admin-delete-btn" onclick="deleteTeam()" disabled
-                                    class="w-full px-4 py-2 bg-red-800 hover:bg-red-900 text-white font-medium rounded-lg transition duration-150">
-                                Cancella Squadra
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 4. Gestione Regole del Gioco -->
-                    <div class="bg-gray-700 p-4 rounded-lg">
-                        <h3 class="text-xl font-medium mb-3 text-red-400">4. Gestione Regole del Gioco</h3>
-                        <p class="text-sm mb-3 text-gray-400">Inserisci qui le regole del gioco TOTOMORTO. Saranno visibili in testa alla classifica.</p>
-                        
-                        <textarea id="admin-rules-textarea" rows="6" placeholder="Inserisci qui le regole del gioco..."
-                                class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white resize-y"></textarea>
-                        
-                        <button id="admin-save-rules-btn" onclick="saveRules()" disabled
-                                class="mt-3 w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-150">
-                            Salva Regole
-                        </button>
-                    </div>
-
+                    <input type="checkbox" id="toggleRegistrationsClosed" onchange="toggleTeamRegistrationLock(this.checked)">
+                    <label for="toggleRegistrationsClosed" style="font-weight: bold;">Blocca Inserimento/Modifica Squadre (Chiudi Mercato)</label>
+                    
+                    <p id="registrationStatusMessage" style="margin-top: 10px; font-weight: bold;"></p>
                 </div>
-            </div> <!-- Fine admin-content -->
-        </div>
+                
+                <div class="admin-control-group">
+                    <h4>Gestione Punteggi</h4>
+                    <p>Qui puoi aggiornare i punteggi dei singoli giocatori.</p>
+                    <button onclick="alert('Funzione di aggiornamento punteggi da implementare.')">Aggiorna Punteggi</button>
+                </div>
 
-        <div id="alert-message" class="fixed bottom-4 right-4 p-3 rounded-lg shadow-xl text-white hidden transition-opacity duration-300"></div>
+                <h4 style="margin-top: 20px;">Audit Log</h4>
+                <div id="auditLog" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 4px;">
+                    </div>
+
+                <button style="background-color: #e74c3c; margin-top: 15px;" onclick="resetAllData()">Cancella Tutti i Dati (Reset)</button>
+            </div>
+        </div>
 
     </div>
 
-    <!-- Moduli di Firebase (Importati tramite CDN) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, getDocs, writeBatch, updateDoc, setLogLevel, serverTimestamp, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Imposta il livello di log per Firestore
-        setLogLevel('Debug');
+    <script>
+        // ======================================================
+        // VARIABILI GLOBALI E CONFIGURAZIONE
+        // ======================================================
+        const TEAMS_KEY = 'totomorto_teams';
+        const LOG_KEY = 'totomorto_audit_log';
+        const ADMIN_PASSWORD = 'B4n4n4l4mp0n3'; 
+        let teams = [];
+        let auditLog = [];
 
-        // Variabili globali fornite dall'ambiente Canvas
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // --------------------------------------------------------
-        // CONFIGURAZIONE FORNITA DALL'UTENTE
-        // --------------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRY9dRQWAwrnQzON3B_l6cAw7d-6a_PDM",
-            authDomain: "toto-morto.firebaseapp.com",
-            projectId: "toto-morto",
-            storageBucket: "toto-morto.firebasestorage.app",
-            appId: "1:524024219116:web:f615fc6750ede425cdecc9",
-            messagingSenderId: "524024219116",
-            measurementId: "G-EDZ41M49KN"
-        };
-        
-        // Verifica se la configurazione sembra completa
-        let isFirebaseAvailable = (
-            firebaseConfig.apiKey && 
-            firebaseConfig.apiKey.length > 5 && 
-            firebaseConfig.projectId
-        );
-        
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        // Riferimenti ai servizi globali
-        let app = null;
-        let db = null;
-        let auth = null;
-        let userId = 'anonimo';
-        let isAuthReady = false;
-        
-        // Path della collezione pubblica (5 segments: C/D/C/D/C)
-        const TEAMS_COLLECTION_PATH = `/artifacts/${appId}/public/data/totomorto_teams`; 
-        const GLOBAL_SCORES_COLLECTION_PATH = `/artifacts/${appId}/public/data/global_scores`;
-        const AUDIT_COLLECTION_PATH = `/artifacts/${appId}/public/data/score_audit`;
-        const RULES_COLLECTION_PATH = `/artifacts/${appId}/public/data/game_rules`;
-        const RULES_DOC_ID = 'current_rules'; // ID del documento delle regole
+        // ======================================================
+        // NUOVE VARIABILI E FUNZIONI PER LA GESTIONE DELLO STATO ISCRIZIONI
+        // ======================================================
 
-        // --- PASSWORD AMMINISTRATORE ---
-        const ADMIN_PASSWORD = 'B4n4n4l4mp0n3'; // Password fissa per la demo
-        let isAdminVerified = false; // Stato di accesso Admin
+        let isRegistrationsClosed = false;
+        const REGISTRATION_CLOSED_KEY = 'totomorto_registrations_closed';
 
-
-        // Riferimenti agli elementi DOM
-        const userInfo = document.getElementById('user-info');
-        const teamInputsDiv = document.getElementById('team-inputs');
-        const captainSelect = document.getElementById('captain-select');
-        const saveTeamBtn = document.getElementById('save-team-btn');
-        const playerNameInput = document.getElementById('player-name');
-        const currentTeamDisplay = document.getElementById('current-team-display');
-        const leaderboardBody = document.getElementById('leaderboard-body');
-        const leaderboardStatus = document.getElementById('leaderboard-status');
-        const alertMessageDiv = document.getElementById('alert-message');
-        const tabClassificaBtn = document.getElementById('tab-classifica');
-        const tabAdminBtn = document.getElementById('tab-admin');
-        const criticalWarning = document.getElementById('critical-warning');
-
-
-        // Admin DOM elements
-        const adminNameSelect = document.getElementById('admin-name-select');
-        const adminNameScoreInput = document.getElementById('admin-name-score');
-        const adminAssignNameBtn = document.getElementById('admin-assign-name-btn');
-        const adminUserIdInput = document.getElementById('admin-user-id');
-        const adminExtraPointsInput = document.getElementById('admin-extra-points');
-        const adminAssignExtraBtn = document.getElementById('admin-assign-extra-btn');
-        const uniqueNamesStatus = document.getElementById('unique-names-status');
-        const scoreAuditLog = document.getElementById('score-audit-log');
-        
-        // Nuovi elementi DOM per le Regole
-        const gameRulesText = document.getElementById('game-rules-text');
-        const adminRulesTextarea = document.getElementById('admin-rules-textarea');
-        const adminSaveRulesBtn = document.getElementById('admin-save-rules-btn');
-
-        // NUOVI elementi DOM per Cancellazione Squadra
-        const adminDeleteUserIdInput = document.getElementById('admin-delete-user-id');
-        const adminDeleteBtn = document.getElementById('admin-delete-btn');
-
-        // Elementi Login Gate
-        const adminLoginGate = document.getElementById('admin-login-gate');
-        const adminContent = document.getElementById('admin-content');
-        const adminPasswordInput = document.getElementById('admin-password-input');
-        const adminLoginError = document.getElementById('admin-login-error');
-
-
-        // Stato dell'App
-        let currentPage = 'squadra'; 
-        let allTeamsSnapshot = []; // Per l'aggregazione dei nomi in Admin
-
-        // 1. Inizializzazione e Autenticazione di Firebase
-        function initializeFirebase() {
-            if (!isFirebaseAvailable) {
-                 // Disabilita tutte le funzionalità e sblocca l'interfaccia utente.
-                criticalWarning.classList.remove('hidden');
-                userInfo.textContent = `AVVISO: Dati disabilitati. (ID Giocatore: ${userId})`;
-                isAuthReady = true; 
-                setupTeamInputs(); // Inizializza i campi input anche senza DB
-                // Disabilita i pulsanti che richiedono il DB
-                saveTeamBtn.disabled = true;
-                tabClassificaBtn.disabled = true;
-                tabAdminBtn.disabled = true;
-                return;
-            }
+        // Carica lo stato di chiusura all'avvio
+        function loadRegistrationStatus() {
+            const closed = localStorage.getItem(REGISTRATION_CLOSED_KEY);
+            // Il valore da localStorage è una stringa, la confrontiamo con 'true'
+            isRegistrationsClosed = (closed === 'true'); 
             
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Tentativo di autenticazione: forziamo l'accesso anonimo con la configurazione dell'utente
-                const attemptAuth = async () => {
-                    try {
-                        // **SOLUZIONE:** Ignoriamo il token personalizzato dell'ambiente
-                        // e tentiamo SOLO l'accesso anonimo al progetto dell'utente.
-                        await signInAnonymously(auth);
-                        
-                    } catch (e) {
-                        console.error("Errore Autenticazione Iniziale (NON RICONOSCIUTO):", e);
-                        userInfo.textContent = `Errore Autenticazione: ${e.message}`;
-                        // Imposta lo stato di fallimento e riavvia la logica di blocco UI
-                        isFirebaseAvailable = false;
-                        isAuthReady = true;
-                        initializeFirebase(); 
-                        return; // Ferma il flusso
-                    }
-                };
-
-                // Listener per gestire il cambio di stato di autenticazione
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        userInfo.textContent = `Giocatore: ${userId}`;
-                        isAuthReady = true;
-                        
-                        // Abilita i pulsanti UI di base
-                        saveTeamBtn.disabled = false;
-                        tabClassificaBtn.disabled = false;
-                        tabAdminBtn.disabled = false;
-                        
-                        console.log("Autenticazione Firebase completata. Inizializzo i listener.");
-                        setupTeamInputs();
-                        setupTeamListener();
-                        setupLeaderboardListener(); 
-                        setupAuditLogListener();
-                        setupRulesListener(); 
-                    }
-                });
-
-                // Avvia il tentativo di autenticazione
-                if (!auth.currentUser) {
-                    attemptAuth();
-                }
-
-            } catch (error) {
-                // Questo catch cattura errori nell'initializeApp (es. projectId non trovato)
-                console.error("Errore fatale nell'inizializzazione di Firebase SDK:", error);
-                userInfo.textContent = `Errore di Inizializzazione: ${error.message}`;
-                // Se l'inizializzazione fallisce subito, blocca l'app
-                isFirebaseAvailable = false;
-                isAuthReady = true;
-                initializeFirebase(); // Riprova, che attiverà il blocco UI
+            updateRegistrationUI(); // Aggiorna l'interfaccia utente
+            
+            // Se il checkbox esiste (cioè siamo nell'area Admin), aggiorniamolo
+            const checkbox = document.getElementById('toggleRegistrationsClosed');
+            if (checkbox) {
+                checkbox.checked = isRegistrationsClosed;
             }
         }
-        
-        // 2. Logica UI e Routing
-        window.changePage = function(page) {
-            currentPage = page;
-            document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`page-${page}`).classList.remove('hidden');
 
-            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${page}`).classList.add('active');
+        // Funzione chiamata dal pannello Admin per cambiare lo stato
+        function toggleTeamRegistrationLock(isClosed) {
+            isRegistrationsClosed = isClosed;
+            localStorage.setItem(REGISTRATION_CLOSED_KEY, isClosed);
+            updateRegistrationUI();
 
-            if (page === 'admin') {
-                if (isAdminVerified) {
-                    adminLoginGate.classList.add('hidden');
-                    adminContent.classList.remove('hidden');
-                    // Abilita i pulsanti admin solo se la password è corretta E il DB è disponibile
-                    enableAdminButtons(isFirebaseAvailable);
-                    if (isFirebaseAvailable) {
-                        populateAdminNameSelect();
-                        // Aggiorna la textarea Admin con le regole correnti
-                        const currentRules = gameRulesText.textContent;
-                        if (currentRules && currentRules !== "Caricamento regole...") {
-                            adminRulesTextarea.value = currentRules;
-                        }
-                    } else {
-                        alertUserMessage("Impossibile usare i servizi Admin: Database non disponibile.", 'error');
-                    }
-                } else {
-                    adminLoginGate.classList.remove('hidden');
-                    adminContent.classList.add('hidden');
-                    enableAdminButtons(false); // Disabilita i pulsanti se non verificato
-                    adminPasswordInput.value = ''; // Pulisci l'input
-                    adminLoginError.classList.add('hidden');
-                }
-            }
-        };
+            const action = isClosed ? 'CHIUSURA MERCATO SQUADRE' : 'RIAPERTURA MERCATO SQUADRE';
+            logAdminAction(action); 
 
-        // Funzione per abilitare/disabilitare i pulsanti admin
-        function enableAdminButtons(enabled) {
-            adminAssignNameBtn.disabled = !enabled;
-            adminAssignExtraBtn.disabled = !enabled;
-            adminSaveRulesBtn.disabled = !enabled; 
-            adminDeleteBtn.disabled = !enabled; 
-            adminNameSelect.disabled = !enabled;
+            alert(`Stato Iscrizioni aggiornato: Mercato ${isClosed ? 'CHIUSO' : 'APERTO'}`);
         }
 
-        // --- NUOVA FUNZIONE: LOGICA DI ACCESSO ADMIN ---
-        window.checkAdminPassword = function() {
-            const enteredPassword = adminPasswordInput.value;
-            adminLoginError.classList.add('hidden');
+        // Aggiorna l'interfaccia utente in base allo stato
+        function updateRegistrationUI() {
+            const addButton = document.getElementById('addTeamButton'); 
+            const statusMessage = document.getElementById('registrationStatusMessage');
 
-            if (enteredPassword === ADMIN_PASSWORD) {
-                isAdminVerified = true;
-                alertUserMessage("Accesso Amministratore sbloccato!", 'success');
-                
-                // Mostra il contenuto Admin e nascondi il gate
-                adminLoginGate.classList.add('hidden');
-                adminContent.classList.remove('hidden');
-                // Abilita i pulsanti solo se il DB è OK
-                enableAdminButtons(isFirebaseAvailable); 
-                if (isFirebaseAvailable) {
-                    populateAdminNameSelect();
-                } else {
-                    alertUserMessage("Pannello sbloccato, ma le operazioni di database sono disabilitate.", 'info');
+            if (isRegistrationsClosed) {
+                if (addButton) {
+                    addButton.disabled = true;
+                    addButton.title = "Operazione bloccata. Il Mercato è Chiuso dall'Admin.";
+                    addButton.textContent = "Aggiungi Squadra (Mercato Chiuso)";
                 }
-                
+                if (statusMessage) {
+                    statusMessage.textContent = "MERCATO CHIUSO: INSERIMENTO E MODIFICA SQUADRE NON CONSENTITI.";
+                    statusMessage.style.color = 'red';
+                }
             } else {
-                isAdminVerified = false;
-                adminLoginError.textContent = "Password errata. Riprova.";
-                adminLoginError.classList.remove('hidden');
-                adminPasswordInput.value = '';
-                adminPasswordInput.focus();
-            }
-        };
-
-        // 3. Setup Campi Input (Omesso per brevità, non modificato)
-        function setupTeamInputs() {
-            teamInputsDiv.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = `name-${i}`;
-                input.placeholder = `Nome Sceglibile ${i}`;
-                input.className = 'w-full';
-                input.addEventListener('input', updateCaptainOptions);
-                teamInputsDiv.appendChild(input);
-            }
-            updateCaptainOptions();
-
-            playerNameInput.addEventListener('input', () => {
-                const storedName = localStorage.getItem(`player_name_${userId}`);
-                if (playerNameInput.value !== storedName) {
-                    localStorage.setItem(`player_name_${userId}`, playerNameInput.value);
+                if (addButton) {
+                    addButton.disabled = false;
+                    addButton.title = "Aggiungi una nuova squadra al gioco.";
+                    addButton.textContent = "Aggiungi Squadra";
                 }
-            });
-
-            const savedPlayerName = localStorage.getItem(`player_name_${userId}`);
-            if(savedPlayerName) {
-                playerNameInput.value = savedPlayerName;
+                if (statusMessage) {
+                    statusMessage.textContent = "MERCATO APERTO: ISCRIZIONI ATTIVE.";
+                    statusMessage.style.color = 'green';
+                }
             }
         }
         
-        function updateCaptainOptions() {
-            captainSelect.innerHTML = '<option value="" disabled selected>Seleziona il Capitano</option>';
-            const names = [];
-            for (let i = 1; i <= 10; i++) {
-                const input = document.getElementById(`name-${i}`);
-                if (input && input.value.trim() !== '') {
-                    names.push(input.value.trim());
-                }
+        // ======================================================
+        // FUNZIONI DI GESTIONE DATI E UI
+        // ======================================================
+
+        function loadData() {
+            const storedTeams = localStorage.getItem(TEAMS_KEY);
+            const storedLog = localStorage.getItem(LOG_KEY);
+            
+            if (storedTeams) {
+                teams = JSON.parse(storedTeams);
+            }
+            if (storedLog) {
+                auditLog = JSON.parse(storedLog);
             }
 
-            names.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                captainSelect.appendChild(option);
-            });
-
-            captainSelect.disabled = names.length === 0 || !isFirebaseAvailable;
-            saveTeamBtn.disabled = !isFirebaseAvailable;
+            renderTeams();
+            renderAuditLog();
         }
 
-        // 4. Logica Firestore (Salvamento Squadra - Omesso per brevità, non modificato)
-        window.saveTeam = async function() {
-            if (!isFirebaseAvailable) {
-                alertUserMessage("Errore CRITICO: Servizi database non disponibili. Impossibile salvare.", 'error');
+        function saveData() {
+            localStorage.setItem(TEAMS_KEY, JSON.stringify(teams));
+            localStorage.setItem(LOG_KEY, JSON.stringify(auditLog));
+        }
+
+        function calculateScore(team) {
+            // Logica Semplificata: 10 punti per ogni giocatore + 10 punti bonus per il Capitano (x2)
+            let score = 0;
+            score += team.giocatore1Score || 10; // Capitano base
+            score += team.giocatore2Score || 10;
+            score += team.giocatore3Score || 10;
+
+            // Applica il bonus Capitano (il punteggio già aggiunto del capitano è raddoppiato)
+            score += team.giocatore1Score || 10;
+
+            // In una versione reale, qui ci sarebbe una logica più complessa per assegnare/aggiornare i punteggi
+            return score; 
+        }
+
+        function renderTeams() {
+            const list = document.getElementById('teamsList');
+            list.innerHTML = '';
+            
+            // Ordina le squadre per punteggio (dal più alto al più basso)
+            const sortedTeams = [...teams].sort((a, b) => calculateScore(b) - calculateScore(a));
+
+            if (sortedTeams.length === 0) {
+                 list.innerHTML = '<li>Nessuna squadra iscritta.</li>';
+                 return;
+            }
+
+            sortedTeams.forEach(team => {
+                const score = calculateScore(team);
+                const li = document.createElement('li');
+                li.className = 'team-item';
+                li.innerHTML = `
+                    <div>
+                        <strong>${team.name}</strong> (Capitano: ${team.capitanoName})
+                        <br><small>${team.giocatore2Name}, ${team.giocatore3Name}</small>
+                    </div>
+                    <div class="score">${score} Punti</div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function saveTeam() {
+            // ******* BLOCCO DI CONTROLLO ISCRIZIONI *******
+            if (isRegistrationsClosed) {
+                alert("Operazione bloccata dall'Admin. Il mercato delle squadre è stato chiuso e non è possibile aggiungere o modificare squadre.");
+                return; // BLOCCA l'esecuzione della funzione
+            }
+            // ******* FINE BLOCCO DI CONTROLLO *******
+
+            const teamName = document.getElementById('teamName').value.trim();
+            const capitanoName = document.getElementById('capitanoName').value.trim();
+            const giocatore2Name = document.getElementById('giocatore2Name').value.trim();
+            const giocatore3Name = document.getElementById('giocatore3Name').value.trim();
+
+            if (!teamName || !capitanoName || !giocatore2Name || !giocatore3Name) {
+                alert("Per favore, compila tutti i campi.");
                 return;
             }
-            if (!isAuthReady || !db) {
-                alertUserMessage("Errore: Servizi Firebase non pronti o non autenticati.", 'error');
-                return;
-            }
 
-            const playerName = playerNameInput.value.trim();
-            if (playerName.length < 3) {
-                alertUserMessage("Inserisci un nome giocatore valido (almeno 3 caratteri).", 'error');
-                return;
-            }
-
-            const captainName = captainSelect.value;
-            if (!captainName) {
-                alertUserMessage("Devi selezionare un Capitano tra i nomi scelti.", 'error');
-                return;
-            }
-
-            const teamMembers = [];
-            const enteredNames = new Set();
-            let allNamesValid = true;
-
-            for (let i = 1; i <= 10; i++) {
-                const nameInput = document.getElementById(`name-${i}`);
-                const name = nameInput.value.trim();
-
-                if (name.length === 0) {
-                    alertUserMessage("Tutti i 10 campi nome devono essere riempiti.", 'error');
-                    allNamesValid = false;
-                    break;
-                }
-
-                if (enteredNames.has(name.toLowerCase())) {
-                    alertUserMessage(`Il nome "${name}" è duplicato. Inserisci 10 nomi univoci.`, 'error');
-                    allNamesValid = false;
-                    break;
-                }
-                enteredNames.add(name.toLowerCase());
-                
-                // Punteggio iniziale 0, che verrà aggiornato dall'Admin
-                teamMembers.push({
-                    name: name,
-                    isCaptain: name === captainName,
-                    score: 0 
-                });
-            }
-
-            if (!allNamesValid) return;
-
-            // Dati da salvare
-            const teamData = {
-                userId: userId,
-                playerName: playerName,
-                team: teamMembers,
-                totalScore: 0, 
-                extraPoints: 0, 
-                // Usiamo serverTimestamp() per il salvataggio in Firestore.
-                // Lo converto in stringa per la visualizzazione locale/aggiornamento
-                lastUpdate: new Date().toISOString()
+            // Aggiunge la squadra con punteggi iniziali a 0 (o un valore di default)
+            const newTeam = {
+                id: Date.now(), // ID univoco basato sul timestamp
+                name: teamName,
+                capitanoName: capitanoName,
+                giocatore2Name: giocatore2Name,
+                giocatore3Name: giocatore3Name,
+                // Inizializzazione punteggi a 0 (per la logica di calcolo)
+                giocatore1Score: 0, 
+                giocatore2Score: 0,
+                giocatore3Score: 0
             };
 
-            try {
-                saveTeamBtn.disabled = true;
-                // docRef avrà 6 segmenti (C/D/C/D/C/D)
-                const docRef = doc(db, TEAMS_COLLECTION_PATH, userId);
-                await setDoc(docRef, teamData, { merge: false });
+            teams.push(newTeam);
+            saveData();
+            renderTeams();
+            logUserAction(`Iscrizione squadra: ${teamName}`);
 
-                alertUserMessage("Squadra TOTOMORTO salvata con successo! Vai alla classifica per vedere il risultato.", 'success');
-            } catch (e) {
-                console.error("Errore CRITICO nel salvataggio della squadra:", e);
-                // Invia l'errore completo nell'avviso
-                const fullErrorMessage = e.message || 'Errore sconosciuto';
-                alertUserMessage(`Salvataggio fallito. Controlla la console per l'errore completo. Dettaglio: ${fullErrorMessage.substring(0, 150)}`, 'error');
-            } finally {
-                saveTeamBtn.disabled = false;
-            }
-        };
-
-
-        // 5. Logica Firestore (Listener Squadra Corrente - Omesso per brevità, non modificato)
-        function setupTeamListener() {
-            if (!isAuthReady || !db) return;
-
-            const docRef = doc(db, TEAMS_COLLECTION_PATH, userId);
-
-            onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const team = data.team || [];
-                    const captain = team.find(m => m.isCaptain)?.name || 'N/D';
-                    
-                    // Popola i campi input
-                    playerNameInput.value = data.playerName || '';
-                    team.forEach((member, index) => {
-                        const input = document.getElementById(`name-${index + 1}`);
-                        if (input) input.value = member.name;
-                    });
-                    updateCaptainOptions(); 
-                    captainSelect.value = captain;
-
-                    // Gestione del timestamp, assicurando che sia una stringa
-                    const lastUpdateTime = data.lastUpdate && data.lastUpdate.seconds 
-                        ? new Date(data.lastUpdate.seconds * 1000).toLocaleString('it-IT')
-                        : (data.lastUpdate || 'N/D');
-
-                    // Visualizza la squadra
-                    currentTeamDisplay.innerHTML = `
-                        <p class="font-bold text-lg text-green-400">Squadra Attuale (${data.totalScore || 0} punti)</p>
-                        <p class="text-sm">Giocatore: ${data.playerName}</p>
-                        <ul class="list-disc list-inside mt-2 ml-4 text-sm text-gray-300">
-                            ${team.map(member => `
-                                <li>${member.name} 
-                                    ${member.isCaptain ? '<span class="text-yellow-400">(CAPITANO)</span>' : ''}
-                                    <span class="text-xs text-blue-300"> - Punti: ${member.score || 0}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                        <p class="text-xs mt-2 text-gray-500">Punti Extra: <span class="text-pink-300 font-bold">${data.extraPoints || 0}</span> | Ultimo aggiornamento: ${lastUpdateTime}</p>
-                    `;
-
-                } else {
-                    currentTeamDisplay.innerHTML = `<p class="text-yellow-400">Nessuna squadra ancora salvata per ${userId}.</p>`;
-                }
-            }, (error) => {
-                console.error("Errore nell'ascolto della squadra utente:", error);
-                alertUserMessage("Errore nel recupero della tua squadra.", 'error');
-            });
-        }
-
-        // 6. Logica Firestore (Listener Classifica Generale - Omesso per brevità, non modificato)
-        function setupLeaderboardListener() {
-            if (!isAuthReady || !db) return;
-
-            const collectionRef = collection(db, TEAMS_COLLECTION_PATH); // TEAMS_COLLECTION_PATH ha 5 segmenti (dispari)
-            const q = query(collectionRef); 
-
-            onSnapshot(q, (querySnapshot) => {
-                leaderboardBody.innerHTML = '';
-                leaderboardStatus.textContent = `Squadre caricate: ${querySnapshot.size}`;
-                
-                let teams = [];
-                allTeamsSnapshot = []; 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    teams.push(data);
-                    allTeamsSnapshot.push(data); 
-                });
-
-                // Ordina localmente per punteggio totale (dal più alto al più basso)
-                teams.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
-
-                teams.forEach((data, index) => {
-                    const rank = index + 1;
-                    const isCurrentUser = data.userId === userId;
-                    
-                    const row = document.createElement('tr');
-                    row.className = isCurrentUser ? 'bg-blue-900/50 hover:bg-blue-900' : 'hover:bg-gray-700';
-
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${rank <= 3 ? 'text-yellow-400 font-bold' : 'text-gray-200'}">${rank}°</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                            <span class="${isCurrentUser ? 'text-green-400 font-bold' : ''}">${data.playerName}</span>
-                            <span class="text-xs text-gray-500 block">${data.userId}</span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-400">
-                            ${data.team.map(m => `<span class="${m.isCaptain ? 'text-yellow-400 font-semibold' : ''}">${m.name}</span>`).join(', ')}
-                            ${(data.extraPoints || 0) > 0 ? `<span class="text-pink-300 ml-2">(+${data.extraPoints} Extra)</span>` : ''}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-lg font-bold text-green-400">${data.totalScore || 0}</td>
-                    `;
-                    leaderboardBody.appendChild(row);
-                });
-
-                // Aggiorna il dropdown Admin dopo aver letto tutte le squadre
-                if (currentPage === 'admin' && isAdminVerified) {
-                     populateAdminNameSelect();
-                }
-
-            }, (error) => {
-                console.error("Errore nell'ascolto della classifica:", error);
-                leaderboardStatus.textContent = "Errore nel caricamento della classifica.";
-                alertUserMessage("Errore grave nel caricamento della classifica generale.", 'error');
-            });
-        }
-
-        // 7. Logica Firestore (Listener Registro Punteggi - Omesso per brevità, non modificato)
-        function setupAuditLogListener() {
-            if (!isAuthReady || !db) return;
-
-            const collectionRef = collection(db, AUDIT_COLLECTION_PATH);
-            const q = query(collectionRef); 
-
-            onSnapshot(q, (querySnapshot) => {
-                const logs = [];
-                querySnapshot.forEach((doc) => {
-                    logs.push(doc.data());
-                });
-
-                // Ordina per timestamp (più recente in alto)
-                logs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-                scoreAuditLog.innerHTML = logs.length === 0 
-                    ? '<li class="text-gray-400">Nessuna attività recente...</li>' 
-                    : logs.slice(0, 10).map(log => { 
-                        const time = new Date((log.timestamp?.seconds || 0) * 1000).toLocaleTimeString('it-IT');
-                        let message = '';
-                        let color = '';
-
-                        if (log.type === 'MEMBER') {
-                            message = `Assegnati ${log.points} punti a ${log.target}. Classifiche ricalcolate.`;
-                            color = 'text-red-300';
-                        } else if (log.type === 'EXTRA') {
-                            message = `Assegnati +${log.points} punti extra alla squadra di ID: ${log.target}`; // Non troncato nel log
-                            color = 'text-pink-300';
-                        } else if (log.type === 'DELETE_TEAM') { // NUOVO LOG
-                            message = `Squadra dell'utente ID: ${log.target} è stata CANCELLATA.`; // Non troncato nel log
-                            color = 'text-red-500';
-                        }
-                        
-                        return `<li class="${color} flex justify-between"><span>[${time}] ${message}</span><span class="text-gray-500 text-xs">Admin: ${log.adminId.substring(0, 4)}...</span></li>`;
-                    }).join('');
-            }, (error) => {
-                console.error("Errore nell'ascolto del log di audit:", error);
-            });
-        }
-
-        // 8. Logica Admin: Aggregazione Nomi (Omesso per brevità, non modificato)
-        function populateAdminNameSelect() {
-            if (!isAdminVerified) return; // Non eseguire se non loggato come Admin
-
-            const uniqueNames = new Set();
-            allTeamsSnapshot.forEach(teamData => {
-                teamData.team.forEach(member => {
-                    if (member.name.trim()) {
-                        uniqueNames.add(member.name.trim());
-                    }
-                });
-            });
-
-            adminNameSelect.innerHTML = '<option value="" disabled selected>Seleziona un nome...</option>';
-            uniqueNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                adminNameSelect.appendChild(option);
-            });
-
-            uniqueNamesStatus.textContent = `Totale nomi unici: ${uniqueNames.size}`;
-            adminNameSelect.disabled = uniqueNames.size === 0 || !isAdminVerified;
-        }
-
-        // 9. Logica Admin: Assegnazione Punti ad un Nome (Globale - Omesso per brevità, non modificato)
-        window.assignNamePoints = async function() {
-            if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
-            if (!isAuthReady || !db) return;
-
-            const targetName = adminNameSelect.value;
-            const points = parseInt(adminNameScoreInput.value, 10);
-
-            if (!targetName || isNaN(points) || points <= 0) {
-                alertUserMessage("Seleziona un nome e inserisci un punteggio valido (> 0).", 'error');
-                return;
-            }
-
-            enableAdminButtons(false);
-            const batch = writeBatch(db);
-            let teamsUpdated = 0;
-            let totalScoreChange = 0;
-
-            try {
-                // Passo 1: Registra il punteggio globale per il nome
-                const globalScoreRef = doc(db, GLOBAL_SCORES_COLLECTION_PATH, targetName);
-                batch.set(globalScoreRef, { 
-                    name: targetName, 
-                    points: points, 
-                    assignedBy: userId, 
-                    timestamp: serverTimestamp() 
-                }, { merge: true });
-
-                // Passo 2: Itera su tutte le squadre e aggiorna quelle che contengono il nome
-                allTeamsSnapshot.forEach(teamData => {
-                    const teamRef = doc(db, TEAMS_COLLECTION_PATH, teamData.userId);
-                    let teamChanged = false;
-                    let newTotalScore = teamData.extraPoints || 0; // Punti extra esistenti
-                    
-                    const newTeam = teamData.team.map(member => {
-                        let memberScore = member.score || 0;
-                        if (member.name === targetName) {
-                            // Punti base
-                            memberScore = points;
-                            if (member.isCaptain) {
-                                memberScore *= 2; // Capitano x2
-                            }
-                            teamChanged = true;
-                        }
-                        newTotalScore += memberScore; // Aggiungi il punteggio aggiornato
-                        return { ...member, score: memberScore };
-                    });
-
-                    if (teamChanged) {
-                        batch.update(teamRef, {
-                            team: newTeam,
-                            totalScore: newTotalScore,
-                            lastUpdate: new Date().toISOString()
-                        });
-                        teamsUpdated++;
-                        totalScoreChange += newTotalScore - (teamData.totalScore || 0);
-                    }
-                });
-
-                // Passo 3: Log dell'azione nell'Audit
-                const auditRef = doc(collection(db, AUDIT_COLLECTION_PATH)); 
-                batch.set(auditRef, {
-                    type: 'MEMBER',
-                    target: targetName,
-                    points: points,
-                    adminId: userId,
-                    timestamp: serverTimestamp()
-                });
-
-                await batch.commit();
-
-                alertUserMessage(`Punti (${points}) assegnati a "${targetName}". Aggiornate ${teamsUpdated} squadre.`, 'success');
-                adminNameScoreInput.value = '';
-            } catch (e) {
-                console.error("Errore nell'assegnazione punti globali:", e);
-                alertUserMessage(`Errore critico: ${e.message}`, 'error');
-            } finally {
-                enableAdminButtons(true);
-            }
-        };
-
-        // 10. Logica Admin: Assegnazione Punti Extra alla Squadra (Omesso per brevità, non modificato)
-        window.assignExtraTeamPoints = async function() {
-            if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
-            if (!isAuthReady || !db) return;
-
-            const targetUserId = adminUserIdInput.value.trim();
-            const extraPoints = parseInt(adminExtraPointsInput.value, 10);
-
-            if (!targetUserId || isNaN(extraPoints) || extraPoints === 0) {
-                alertUserMessage("Inserisci un ID Giocatore e un valore di punti extra valido (non zero).", 'error');
-                return;
-            }
+            // Resetta il form
+            document.getElementById('teamName').value = '';
+            document.getElementById('capitanoName').value = '';
+            document.getElementById('giocatore2Name').value = '';
+            document.getElementById('giocatore3Name').value = '';
             
-            enableAdminButtons(false);
-            const teamRef = doc(db, TEAMS_COLLECTION_PATH, targetUserId);
-            
-            try {
-                // 1. Recupera la squadra per calcolare il nuovo totale
-                const existingTeam = allTeamsSnapshot.find(t => t.userId === targetUserId);
-                if (!existingTeam) {
-                    alertUserMessage(`Squadra con ID "${targetUserId.substring(0, 8)}..." non trovata.`, 'error');
-                    return;
-                }
-
-                // Calcola il punteggio base dai membri (per assicurarsi che sia aggiornato)
-                const baseScore = existingTeam.team.reduce((sum, member) => sum + (member.score || 0), 0);
-                
-                const newExtraPoints = (existingTeam.extraPoints || 0) + extraPoints;
-                const newTotalScore = baseScore + newExtraPoints;
-
-                // 2. Aggiorna il documento della squadra
-                await updateDoc(teamRef, {
-                    extraPoints: newExtraPoints,
-                    totalScore: newTotalScore,
-                    lastUpdate: new Date().toISOString()
-                });
-
-                // 3. Log dell'azione nell'Audit
-                await setDoc(doc(collection(db, AUDIT_COLLECTION_PATH)), {
-                    type: 'EXTRA',
-                    target: targetUserId,
-                    points: extraPoints,
-                    adminId: userId,
-                    timestamp: serverTimestamp()
-                }, { merge: true });
-
-                alertUserMessage(`Assegnati ${extraPoints} punti extra alla squadra di ${existingTeam.playerName}.`, 'success');
-                adminExtraPointsInput.value = '';
-            } catch (e) {
-                console.error("Errore nell'assegnazione punti extra:", e);
-                alertUserMessage(`Errore: ${e.message}`, 'error');
-            } finally {
-                enableAdminButtons(true);
-            }
-        };
-
-        // 11. NUOVA Logica Admin: Cancellazione Squadra (Omesso per brevità, non modificato)
-        window.deleteTeam = async function() {
-            if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
-            if (!isAuthReady || !db) return;
-
-            const targetUserId = adminDeleteUserIdInput.value.trim();
-
-            if (!targetUserId || targetUserId.length < 5) {
-                alertUserMessage("Inserisci un ID Giocatore Target valido.", 'error');
-                return;
-            }
-            
-            enableAdminButtons(false);
-            const teamRef = doc(db, TEAMS_COLLECTION_PATH, targetUserId);
-            
-            try {
-                // Check if the team exists before attempting deletion
-                const docSnap = await getDoc(teamRef);
-                if (!docSnap.exists()) {
-                    alertUserMessage(`Squadra con ID "${targetUserId.substring(0, 8)}..." non trovata.`, 'error');
-                    return;
-                }
-
-                await deleteDoc(teamRef);
-
-                // 3. Log dell'azione nell'Audit 
-                await setDoc(doc(collection(db, AUDIT_COLLECTION_PATH)), {
-                    type: 'DELETE_TEAM',
-                    target: targetUserId,
-                    points: 0,
-                    adminId: userId,
-                    timestamp: serverTimestamp()
-                }, { merge: true });
-
-                alertUserMessage(`Squadra dell'utente "${targetUserId.substring(0, 8)}..." CANCELLATA con successo.`, 'success');
-                adminDeleteUserIdInput.value = '';
-            } catch (e) {
-                console.error("Errore nella cancellazione della squadra:", e);
-                alertUserMessage(`Errore nella cancellazione: ${e.message}`, 'error');
-            } finally {
-                enableAdminButtons(true);
-            }
-        };
-
-
-        // 12. Logica Firestore: Listener Regole del Gioco (Omesso per brevità, non modificato)
-        function setupRulesListener() {
-            if (!isAuthReady || !db) return;
-
-            // doc(db, RULES_COLLECTION_PATH, RULES_DOC_ID) ha 6 segmenti (pari)
-            const docRef = doc(db, RULES_COLLECTION_PATH, RULES_DOC_ID);
-
-            onSnapshot(docRef, (docSnap) => {
-                let rules = "Nessuna regola ancora impostata. L'Admin deve inserirle.";
-                if (docSnap.exists()) {
-                    rules = docSnap.data().rules || rules;
-                }
-                
-                gameRulesText.textContent = rules;
-                
-                // Popola il textarea admin (solo se si è nella pagina Admin e verificato)
-                if (currentPage === 'admin' && isAdminVerified && adminRulesTextarea) {
-                    adminRulesTextarea.value = rules;
-                }
-            }, (error) => {
-                console.error("Errore nell'ascolto delle regole:", error);
-                gameRulesText.textContent = "Errore nel caricamento delle regole.";
-            });
+            alert(`Squadra "${teamName}" iscritta con successo!`);
         }
+        
+        // ======================================================
+        // FUNZIONI ADMIN E LOG
+        // ======================================================
 
-        // 13. Logica Admin: Salvataggio Regole (Omesso per brevità, non modificato)
-        window.saveRules = async function() {
-            if (!isAdminVerified) { alertUserMessage("Accesso negato. Esegui il login Admin.", 'error'); return; }
-            if (!isAuthReady || !db) return;
-
-            const rulesContent = adminRulesTextarea.value.trim();
-
-            if (rulesContent.length < 10) {
-                alertUserMessage("Le regole devono contenere almeno 10 caratteri per essere significative.", 'error');
-                return;
-            }
-
-            enableAdminButtons(false);
-
-            try {
-                const docRef = doc(db, RULES_COLLECTION_PATH, RULES_DOC_ID);
-                await setDoc(docRef, { 
-                    rules: rulesContent, 
-                    lastUpdatedBy: userId,
-                    timestamp: serverTimestamp() 
-                });
-
-                alertUserMessage("Regole salvate con successo!", 'success');
-            } catch (e) {
-                console.error("Errore nel salvataggio delle regole:", e);
-                alertUserMessage(`Errore nel salvataggio delle regole: ${e.message}`, 'error');
-            } finally {
-                enableAdminButtons(true);
-            }
-        };
-
-
-        // 14. Funzione helper per messaggi utente 
-        function alertUserMessage(message, type = 'error') {
-            alertMessageDiv.textContent = message;
-            alertMessageDiv.classList.remove('hidden', 'bg-red-600', 'bg-green-600', 'bg-yellow-600');
-            
-            if (type === 'success') {
-                alertMessageDiv.classList.add('bg-green-600');
-            } else if (type === 'info') {
-                alertMessageDiv.classList.add('bg-yellow-600');
+        function checkAdminPassword() {
+            const inputPass = document.getElementById('adminPassword').value;
+            if (inputPass === ADMIN_PASSWORD) {
+                document.getElementById('adminControls').style.display = 'block';
+                document.getElementById('adminPassword').disabled = true;
+                alert("Accesso Admin riuscito!");
+                logAdminAction("Accesso al Pannello Admin.");
             } else {
-                 alertMessageDiv.classList.add('bg-red-600');
+                alert("Password Admin errata.");
+                document.getElementById('adminPassword').value = '';
             }
-            
-            // Mostra per 5 secondi
-            alertMessageDiv.classList.remove('opacity-0');
-            alertMessageDiv.classList.add('opacity-100');
-
-            setTimeout(() => {
-                alertMessageDiv.classList.remove('opacity-100');
-                alertMessageDiv.classList.add('opacity-0');
-                setTimeout(() => alertMessageDiv.classList.add('hidden'), 300); // Nascondi dopo la transizione
-            }, 5000);
         }
 
-        // Avvia l'inizializzazione di Firebase all'avvio della pagina
-        initializeFirebase();
+        function resetAllData() {
+            if (confirm("ATTENZIONE: Sei sicuro di voler cancellare TUTTI i dati (squadre e log)? Questa azione è irreversibile.")) {
+                localStorage.removeItem(TEAMS_KEY);
+                localStorage.removeItem(LOG_KEY);
+                localStorage.removeItem(REGISTRATION_CLOSED_KEY);
+                
+                teams = [];
+                auditLog = [];
+                isRegistrationsClosed = false;
+
+                renderTeams();
+                renderAuditLog();
+                updateRegistrationUI(); // Aggiorna lo stato del pulsante
+
+                alert("Tutti i dati sono stati cancellati. Il gioco è stato resettato.");
+            }
+        }
+
+        function logAction(action, type) {
+            const timestamp = new Date().toLocaleString();
+            auditLog.unshift({ timestamp, action, type }); // Aggiungi in testa
+            // Mantieni solo gli ultimi 50 log per pulizia
+            auditLog = auditLog.slice(0, 50); 
+            saveData();
+            renderAuditLog();
+        }
+
+        function logUserAction(action) {
+            logAction(action, 'USER');
+        }
+
+        function logAdminAction(action) {
+            logAction(action, 'ADMIN');
+        }
+
+        function renderAuditLog() {
+            const logDiv = document.getElementById('auditLog');
+            logDiv.innerHTML = auditLog.map(entry => {
+                const color = entry.type === 'ADMIN' ? 'color: red;' : 'color: blue;';
+                return `<p style="margin: 3px 0; font-size: 0.8em; ${color}">[${entry.timestamp}] (${entry.type}) ${entry.action}</p>`;
+            }).join('');
+        }
+
+
+        // ======================================================
+        // INIZIALIZZAZIONE
+        // ======================================================
+
+        window.onload = function() {
+            loadRegistrationStatus(); // **Carica il nuovo stato di blocco all'avvio**
+            loadData(); // Carica squadre e log
+        };
+
     </script>
 </body>
 </html>
